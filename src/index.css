@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Default (Light Mode) Colors */
+:root {
+  --bg-main: #f8fafc;       /* slate-50 */
+  --bg-card: #ffffff;       /* white */
+  --text-main: #1e293b;     /* slate-800 */
+  --text-muted: #64748b;    /* slate-500 */
+  --border-color: #e2e8f0;  /* slate-200 */
+}
+
+/* Force Dark Mode Colors when .dark class is active */
+html.dark {
+  --bg-main: #020617;       /* slate-950 */
+  --bg-card: #0f172a;       /* slate-900 */
+  --text-main: #f8fafc;     /* slate-50 */
+  --text-muted: #94a3b8;    /* slate-400 */
+  --border-color: #1e293b;  /* slate-800 */
+}
+
+/* Apply these global styles */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Smooth scrolling for whole page disabled (Lenis handles it) */
+html {
+  /* scroll-behavior: smooth; - Removed to prevent conflict with Lenis */
+}
+
+/* ========================== */
+/* WEBSITE-SPECIFIC STYLES    */
+/* ========================== */
+
+/* Glassmorphism nav bar */
+.website-glass {
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Card background with subtle glassmorphism */
+.website-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(10px);
+}
+
+/* Fade-up animation for elements appearing on scroll / load */
+.website-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.website-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Gradient text glow effect */
+.website-glow-text {
+  text-shadow: 0 0 40px rgba(46, 47, 82, 0.3);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html, body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Ensure website section always dark regardless of mode */
+.website-page {
+  --bg-main: #030712;
+  --bg-card: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #1e293b;
+}
+
+
