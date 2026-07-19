@@ -5,7 +5,7 @@ import { Signinform } from './Components/Signinform';
 
 import { Sidebar } from './Components/Sidebar';
 import { Navbar } from './Components/Navbar';
-import { SecurityView } from './Components/SecurityView';
+import { SecurityView } from './Components/Securityview';
 
 // --- Naye Components ke Imports ---
 // OverviewView ka import yahan se remove kar diya gaya hai
