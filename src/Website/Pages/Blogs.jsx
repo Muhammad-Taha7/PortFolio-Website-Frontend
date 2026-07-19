@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 export const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
 
   useEffect(() => {
     window.scrollTo(0, 0);

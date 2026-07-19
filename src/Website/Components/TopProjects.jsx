@@ -15,7 +15,7 @@ export const TopProjects = () => {
   const autoplayTimer = useRef(null);
   const draggableInstance = useRef(null);
   
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
   const AUTOPLAY_SPEED = 2000; // 2 seconds me automatic next hoga
 
   // Fetch featured projects

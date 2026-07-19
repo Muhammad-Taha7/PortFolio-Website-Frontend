@@ -4,7 +4,7 @@ import { Plus, X, Upload, CheckCircle, Trash2, Edit2, MessageSquare, Star, User 
 
 export const TestimonialsView = () => {
     const { token } = useSelector((state) => state.auth);
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
     
     const [testimonials, setTestimonials] = useState([]);
     const [isAdding, setIsAdding] = useState(false);

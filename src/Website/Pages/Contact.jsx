@@ -8,7 +8,7 @@ export const Contact = () => {
     message: ''
   });
   const [status, setStatus] = useState({ loading: false, type: '', msg: '' });
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
