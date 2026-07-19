@@ -13,7 +13,7 @@ export const Home = () => {
   const [loadingImage, setLoadingImage] = useState(true)
 
   // Apna Backend URL yahan set karein
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-1jtz.vercel.app";
 
   // 1. Database se Profile Image Fetch karne ka Effect
   useEffect(() => {

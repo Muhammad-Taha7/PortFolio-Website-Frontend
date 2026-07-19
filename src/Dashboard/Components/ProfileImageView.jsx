@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 export const ProfileImageView = () => {
     const { token } = useSelector((state) => state.auth);
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-1jtz.vercel.app";
 
     const [existingImage, setExistingImage] = useState(null);
     const [isEditing, setIsEditing] = useState(false);

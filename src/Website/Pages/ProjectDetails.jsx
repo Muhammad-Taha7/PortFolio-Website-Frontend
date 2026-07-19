@@ -6,7 +6,7 @@ export const ProjectDetails = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-ta3p.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-1jtz.vercel.app";
 
   useEffect(() => {
     window.scrollTo(0, 0);
