@@ -4,7 +4,7 @@ import { Plus, X, Upload, CheckCircle, Trash2, Image as ImageIcon, ExternalLink,
 
 export const TopProjectsView = () => {
     const { token } = useSelector((state) => state.auth);
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
     
     const [projects, setProjects] = useState([]);
     const [isAdding, setIsAdding] = useState(false);

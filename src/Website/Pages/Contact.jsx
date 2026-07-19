@@ -8,7 +8,7 @@ export const Contact = () => {
     message: ''
   });
   const [status, setStatus] = useState({ loading: false, type: '', msg: '' });
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-nine.vercel.app";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
