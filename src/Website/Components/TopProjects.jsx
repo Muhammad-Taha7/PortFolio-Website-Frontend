@@ -12,11 +12,9 @@ export const TopProjects = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const sliderRef = useRef(null);
-  const autoplayTimer = useRef(null);
   const draggableInstance = useRef(null);
   
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-xjvf.vercel.app";
-  const AUTOPLAY_SPEED = 2000; // 2 seconds me automatic next hoga
 
   // Fetch featured projects
   useEffect(() => {
@@ -35,29 +33,6 @@ export const TopProjects = () => {
     };
     fetchProjects();
   }, []);
-
-  // Autoplay (Repeat Loop) Functionality
-  const startAutoplay = () => {
-    stopAutoplay();
-    if (projects.length > 1) {
-      autoplayTimer.current = setInterval(() => {
-        handleNext();
-      }, AUTOPLAY_SPEED);
-    }
-  };
-
-  const stopAutoplay = () => {
-    if (autoplayTimer.current) {
-      clearInterval(autoplayTimer.current);
-    }
-  };
-
-  useEffect(() => {
-    if (projects.length > 0) {
-      startAutoplay();
-    }
-    return () => stopAutoplay();
-  }, [projects, currentIndex]); // Slide change ya project load hone par cycle smooth rakhega
 
   // Navigation handlers
   const handlePrev = () => {
@@ -105,16 +80,12 @@ export const TopProjects = () => {
         minX: -((projects.length - 1) * step),
         maxX: 0
       },
-      onDragStart: () => {
-        stopAutoplay(); // Drag ke dauran auto-play pause ho jaye
-      },
       onDragEnd: function () {
         // Nearest card calculate karke waha slide snap karega
         const nearestIndex = Math.round(this.x / -step);
         const boundedIndex = Math.max(0, Math.min(projects.length - 1, nearestIndex));
         
         setCurrentIndex(boundedIndex);
-        startAutoplay(); // Drag end hone par autoplay resume
       }
     });
 
@@ -183,8 +154,6 @@ export const TopProjects = () => {
                 ref={sliderRef}
                 className="flex gap-6 cursor-grab active:cursor-grabbing select-none"
                 style={{ willChange: 'transform' }}
-                onMouseEnter={stopAutoplay}
-                onMouseLeave={startAutoplay}
               >
                 {projects.map((project, index) => {
                   const imgUrl = project.images && project.images.length > 0
