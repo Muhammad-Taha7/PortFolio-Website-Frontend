@@ -4,7 +4,7 @@ export const About = () => {
   const [profileImg, setProfileImg] = useState('');
   const [imgError, setImgError] = useState(false);
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-1jtz.vercel.app";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-xjvf.vercel.app";
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/public/profile`)

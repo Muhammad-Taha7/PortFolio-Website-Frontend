@@ -7,7 +7,7 @@ export const MessagesView = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState({ message: '', error: false });
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-1jtz.vercel.app";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-xjvf.vercel.app";
 
     const fetchMessages = async () => {
         try {
