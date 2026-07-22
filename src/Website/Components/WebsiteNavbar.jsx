@@ -116,8 +116,8 @@ export const WebsiteNavbar = () => {
         >
           <div>
             <p className="text-sm uppercase tracking-widest text-orange-950/60 font-bold mb-1">Get in touch</p>
-            <a href="mailto:hello@mrtaha.com" className="text-white hover:text-orange-950 transition-colors text-xl md:text-2xl font-bold inline-block">
-              hello@mrtaha.com
+            <a href="mailto:meet.tahadev@gmail.com" className="text-white hover:text-orange-950 transition-colors text-xl md:text-2xl font-bold inline-block">
+             meet.tahadev@gmail.com
             </a>
           </div>
           <div className="flex gap-4 md:gap-8 text-sm md:text-base font-bold uppercase tracking-wider">
