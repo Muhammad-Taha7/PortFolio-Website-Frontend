@@ -15,6 +15,7 @@ const IntroAnimation = ({ children }) => {
     let ctx = gsap.context(() => {
       // Intro Timeline
       const introTL = gsap.timeline({
+        paused: true,
         onComplete: () => {
           setIntroFinished(true);
         }
@@ -43,6 +44,16 @@ const IntroAnimation = ({ children }) => {
       );
 
       // Custom Cursor Logic
+      const startAnimation = () => {
+        introTL.play();
+      };
+
+      if (document.readyState === 'complete') {
+        startAnimation();
+      } else {
+        window.addEventListener('load', startAnimation);
+      }
+
       const handleMouseMove = (e) => {
         gsap.to(".cursor", { duration: 0.3, x: e.clientX, y: e.clientY, overwrite: "auto" });
       };
@@ -58,6 +69,7 @@ const IntroAnimation = ({ children }) => {
       document.body.addEventListener("mouseleave", handleMouseLeave);
 
       return () => {
+        window.removeEventListener('load', startAnimation);
         window.removeEventListener("mousemove", handleMouseMove);
         document.body.removeEventListener("mouseenter", handleMouseEnter);
         document.body.removeEventListener("mouseleave", handleMouseLeave);

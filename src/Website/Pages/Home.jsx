@@ -147,9 +147,7 @@ export const Home = () => {
           {/* RIGHT SIDE: Subtext & Action Buttons */}
           <div className="flex flex-col items-center lg:items-end text-center lg:text-right order-3">
             {/* Right Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs sm:text-sm font-medium tracking-wider text-rose-400 mb-6 uppercase">
-             MERN 
-            </div>
+           
 <p className="text-sm sm:text-base lg:text-lg text-neutral-400 mb-8 max-w-lg font-medium leading-relaxed text-left">
   I'm a <span className="text-white font-semibold">MERN Stack Developer</span> focused on building fast, scalable, and secure web applications with modern technologies, clean architecture, and seamless user experiences.
 </p>

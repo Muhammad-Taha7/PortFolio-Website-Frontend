@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Dashboard } from './Dashboard/Dashboard.jsx';
 import { Signinform } from './Dashboard/Components/Signinform';
 import { loginSuccess, logout } from './Dashboard/Store/Slices/authSlice.js';
@@ -17,8 +17,15 @@ import IntroAnimation from './Website/Components/IntroAnimation.jsx';
 import { WebsiteNavbar } from './Website/Components/WebsiteNavbar.jsx';
 import { WebsiteFooter } from './Website/Components/WebsiteFooter.jsx';
 import { ProjectDetails } from './Website/Pages/ProjectDetails.jsx';
+import { FloatingContact } from './Website/Components/FloatingContact.jsx';
 
 const WebsiteLayout = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <IntroAnimation>
       <div className=" ">
@@ -27,6 +34,7 @@ const WebsiteLayout = () => {
           <Outlet /> 
         </main>
         <WebsiteFooter />
+        <FloatingContact />
       </div>
     </IntroAnimation>
   );

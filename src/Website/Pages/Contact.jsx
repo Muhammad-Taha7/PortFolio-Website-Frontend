@@ -29,6 +29,11 @@ export const Contact = () => {
       
       if (res.ok) {
         setStatus({ loading: false, type: 'success', msg: data.message || 'Message sent successfully!' });
+        
+        const whatsappMessage = `Hello Taha,\n\nYou have a new inquiry from your website:\n\nName: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject}\nMessage:\n${formData.message}`;
+        const whatsappUrl = `https://wa.me/923150792645?text=${encodeURIComponent(whatsappMessage)}`;
+        window.open(whatsappUrl, '_blank');
+
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
         setStatus({ loading: false, type: 'error', msg: data.message || 'Failed to send message.' });
@@ -77,7 +82,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <span className="text-gray-500 text-sm font-semibold uppercase tracking-wider block">Phone</span>
-                    <span className="text-white font-medium text-lg">+1 (234) 567-890</span>
+                    <span className="text-white font-medium text-lg">03150792645</span>
                   </div>
                 </div>
 
@@ -87,7 +92,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <span className="text-gray-500 text-sm font-semibold uppercase tracking-wider block">Email</span>
-                    <span className="text-white font-medium text-lg">hello@example.com</span>
+                    <span className="text-white font-medium text-lg">meet.tahadev@gmail.com</span>
                   </div>
                 </div>
 
