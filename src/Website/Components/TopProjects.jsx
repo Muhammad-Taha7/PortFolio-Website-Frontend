@@ -23,7 +23,8 @@ export const TopProjects = () => {
         const response = await fetch(`${BACKEND_URL}/api/public/projects?featured=true`);
         if (response.ok) {
           const data = await response.json();
-          setProjects(data);
+          // Projects ko reverse order me set kar rahe hain
+          setProjects([...data].reverse());
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -51,13 +52,47 @@ export const TopProjects = () => {
     }
   };
 
+  // Mouse tilt handlers
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -12; // Max 12 deg tilt
+    const rotateY = ((x - centerX) / centerX) * 12;
+
+    gsap.to(card, {
+      rotateX: rotateX,
+      rotateY: rotateY,
+      duration: 0.3,
+      ease: 'power2.out',
+      transformPerspective: 1000,
+      overwrite: 'auto'
+    });
+  };
+
+  const handleMouseLeave = (e) => {
+    const card = e.currentTarget;
+    gsap.to(card, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      overwrite: 'auto'
+    });
+  };
+
   // GSAP Slide Animation + Drag Setup
   useEffect(() => {
     if (!sliderRef.current || projects.length === 0) return;
 
     const cardElement = sliderRef.current.querySelector('.tp-card-wrapper');
-    const cardWidth = cardElement ? cardElement.offsetWidth : 320;
-    const gap = 20; // gap-5 (20px)
+    const cardWidth = cardElement ? cardElement.offsetWidth : 380;
+    const gap = 24; // gap-6 (24px)
     const step = cardWidth + gap;
 
     // Smooth Slide Transition
@@ -137,7 +172,7 @@ export const TopProjects = () => {
 
         {/* Slider Container */}
         {loading ? (
-          <div className="h-[350px] flex items-center justify-center">
+          <div className="h-[400px] flex items-center justify-center">
             <span className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
           </div>
         ) : projects.length === 0 ? (
@@ -149,7 +184,7 @@ export const TopProjects = () => {
             <div className="w-full">
               <div
                 ref={sliderRef}
-                className="flex gap-5 cursor-grab active:cursor-grabbing select-none"
+                className="flex gap-6 cursor-grab active:cursor-grabbing select-none py-4"
                 style={{ willChange: 'transform' }}
               >
                 {projects.map((project, index) => {
@@ -160,13 +195,19 @@ export const TopProjects = () => {
                   return (
                     <div
                       key={project._id || index}
-                      className="tp-card-wrapper w-[260px] sm:w-[320px] shrink-0"
+                      className="tp-card-wrapper w-[300px] sm:w-[380px] shrink-0"
+                      style={{ perspective: '1000px' }}
                     >
-                      {/* Compact Card */}
-                      <div className="group relative bg-[#111111] border border-white/10 overflow-hidden hover:border-orange-500/50 transition-all duration-500 flex flex-col h-[380px] sm:h-[420px] shadow-xl">
+                      {/* Tilt Card Container */}
+                      <div 
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        className="group relative bg-[#111111] border border-white/10 overflow-hidden hover:border-orange-500/50 transition-colors duration-500 flex flex-col h-[440px] sm:h-[480px] shadow-2xl rounded-sm"
+                        style={{ transformStyle: 'preserve-3d' }}
+                      >
                         
                         {/* Crisp Image Container */}
-                        <div className="w-full h-[200px] sm:h-[230px] overflow-hidden relative bg-black/40">
+                        <div className="w-full h-[240px] sm:h-[280px] overflow-hidden relative bg-black/40">
                           <img
                             src={imgUrl}
                             alt={project.name}
@@ -177,16 +218,16 @@ export const TopProjects = () => {
                         </div>
 
                         {/* Card Info */}
-                        <div className="p-5 flex flex-col justify-between flex-1 relative z-10">
+                        <div className="p-6 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
                           <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2 line-clamp-1 group-hover:text-orange-400 transition-colors">
+                            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 line-clamp-1 group-hover:text-orange-400 transition-colors">
                               {project.name}
                             </h3>
                             
                             {project.technologies && project.technologies.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mb-3">
-                                {project.technologies.slice(0, 3).map((tech, idx) => (
-                                  <span key={idx} className="text-[10px] font-medium px-2 py-0.5 bg-white/5 text-neutral-300 border border-white/10">
+                              <div className="flex flex-wrap gap-1.5 mb-4">
+                                {project.technologies.slice(0, 4).map((tech, idx) => (
+                                  <span key={idx} className="text-[11px] font-medium px-2.5 py-0.5 bg-white/5 text-neutral-300 border border-white/10 rounded-xs">
                                     {tech}
                                   </span>
                                 ))}
@@ -197,7 +238,7 @@ export const TopProjects = () => {
                           {/* Action button */}
                           <Link
                             to={`/project/${project._id}`}
-                            className="inline-flex items-center justify-center w-full py-2.5 px-4 bg-white/5 hover:bg-orange-500 text-white font-semibold transition-all duration-300 border border-white/10 hover:border-orange-500 text-xs tracking-wider uppercase select-none mt-2"
+                            className="inline-flex items-center justify-center w-full py-3 px-4 bg-white/5 hover:bg-orange-500 text-white font-semibold transition-all duration-300 border border-white/10 hover:border-orange-500 text-xs tracking-wider uppercase select-none mt-2"
                           >
                             View Details
                           </Link>
@@ -211,6 +252,32 @@ export const TopProjects = () => {
             </div>
           </div>
         )}
+
+        {/* View All Projects Button */}
+        <div className="mt-14 sm:mt-16 flex justify-center">
+          <Link
+            to="/projects"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-transparent border border-orange-500/40 text-white text-xs sm:text-sm font-bold tracking-[0.2em] uppercase transition-all duration-300 hover:bg-orange-500 hover:border-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)] active:scale-95"
+          >
+            <span>View All Projects</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
       </div>
     </div>
   );
