@@ -102,7 +102,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <span className="text-gray-500 text-sm font-semibold uppercase tracking-wider block">Location</span>
-                    <span className="text-white font-medium text-lg">New York, USA</span>
+                    <span className="text-white font-medium text-lg">Canal Road Faisalabad</span>
                   </div>
                 </div>
               </div>
