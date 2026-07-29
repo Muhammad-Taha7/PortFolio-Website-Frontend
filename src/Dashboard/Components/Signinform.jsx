@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import 'vanta/dist/vanta.globe.min'; 
 
 export const Signinform = () => {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-xjvf.vercel.app";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
