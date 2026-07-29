@@ -8,12 +8,13 @@ export const Home = () => {
   const vantaRef = useRef(null)
   const [vantaEffect, setVantaEffect] = useState(null)
   
-  // Profile image aur loading state ke liye hooks
+  // Profile image & Dual Loading States
   const [profileImage, setProfileImage] = useState('')
-  const [loadingImage, setLoadingImage] = useState(true)
+  const [loadingApi, setLoadingApi] = useState(true)
+  const [isImgLoaded, setIsImgLoaded] = useState(false)
 
-  // Apna Backend URL yahan set karein
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://port-folio-website-backend-xjvf.vercel.app";
+  // Backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   // 1. Database se Profile Image Fetch karne ka Effect
   useEffect(() => {
@@ -22,7 +23,6 @@ export const Home = () => {
         const response = await fetch(`${BACKEND_URL}/api/public/profile`);
         if (response.ok) {
           const data = await response.json();
-          // Backend data check: user schema ke mutabiq profileImage nikalna
           if (data && data.profileImage) {
             setProfileImage(data.profileImage);
           }
@@ -30,12 +30,19 @@ export const Home = () => {
       } catch (error) {
         console.error("Error fetching profile image:", error.message);
       } finally {
-        setLoadingImage(false);
+        setLoadingApi(false);
       }
     };
 
     fetchProfileData();
-  }, []);
+  }, [BACKEND_URL]);
+
+  // Image Source Resolution
+  const finalImageSrc = profileImage 
+    ? (profileImage.startsWith('http') 
+        ? profileImage 
+        : `${BACKEND_URL}${profileImage.startsWith('/') ? '' : '/'}${profileImage}`)
+    : "/hero-img.png";
 
   // 2. Vanta Background Effect Setup
   useEffect(() => {
@@ -84,6 +91,9 @@ export const Home = () => {
     }
   }, [vantaEffect])
 
+  // Complete Loading condition: jab tak API + Actual Image rendering finish nahi hoti
+  const isLoading = loadingApi || !isImgLoaded;
+
   return (
     <>
       {/* HERO SECTION */}
@@ -93,74 +103,99 @@ export const Home = () => {
         style={{ fontFamily: "'Clarity City', sans-serif" }}
       >
         {/* Advanced Glow Effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-gradient-to-tr from-orange-500/10 via-rose-500/10 to-indigo-500/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-gradient-to-tr from-amber-500/10 via-orange-500/10 to-amber-300/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
-        {/* 3-Column Layout Container */}
-        <div className="relative z-10 container mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center w-full ">
+        {/* 3-Column Layout Container with balanced gap */}
+        <div className="relative z-10 container mx-auto px-6 sm:px-10 lg:px-12 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16 items-center w-full">
           
-          {/* LEFT SIDE: Heading & Badges */}
-          <div className="flex flex-col  items-center lg:items-start text-center lg:text-left order-1">
-            {/* MERN Stack Badge */}
-          
-<h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white">
-  BUILDING DIGITAL  WEB<br />
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-rose-400 to-amber-300">
-    EXPERIENCES
-  </span>
-</h1>
+          {/* LEFT SIDE: Heading */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-1">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white">
+              BUILDING DIGITAL WEB<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-200">
+                EXPERIENCES
+              </span>
+            </h1>
           </div>
 
-          {/* MIDDLE: Hero Image (Dynamically Fetched with Slash & Error Handlers) */}
-          <div className="flex justify-center items-center order-2 lg:order-2">
-            <div className="relative group max-w-[280px] sm:max-w-[350px] lg:max-w-full">
-              {/* Image Outer Glow */}
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-rose-500  blur-xl opacity-35 group-hover:opacity-50 transition-opacity duration-500"></div>
+          {/* MIDDLE: Hero Image */}
+          <div className="flex justify-center items-center order-2">
+            <div className="relative group w-[280px] h-[280px] sm:w-[350px] sm:h-[350px]">
               
-              {/* Actual Image Render logic */}
-              {loadingImage ? (
-                <div className="relative z-10 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] border border-white/10 bg-white/5 flex items-center justify-center text-sm text-neutral-400">
-                  <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-2"></span>
-                  Loading Profile...
+              {/* Outer Glowing Effect */}
+              <div 
+                className={`absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur-xl transition-opacity duration-1000 ${
+                  isLoading ? 'opacity-20 animate-pulse' : 'opacity-35 group-hover:opacity-50'
+                }`}
+              />
+
+              {/* Skeleton Loader */}
+              {isLoading && (
+                <div className="absolute inset-0 z-20 rounded-full border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-md flex flex-col items-center justify-center gap-3 animate-pulse shadow-2xl">
+                  <div className="w-10 h-10 border-3 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+                  <span className="text-xs font-medium tracking-wider text-neutral-400 uppercase">
+                    Loading Hero...
+                  </span>
                 </div>
-              ) : (
-                <img 
-                  // URL construct karte waqt external links (e.g. github) aur local uploads ko handle kiya gaya hai
-                  src={
-                    profileImage 
-                      ? (profileImage.startsWith('http') 
-                          ? profileImage 
-                          : `${BACKEND_URL}${profileImage.startsWith('/') ? '' : '/'}${profileImage}`)
-                      : "/hero-img.png"
-                  } 
-                  alt="MERN Stack Developer" 
-                  className="relative z-10 w-full  object-cover rounded-full  border-white/10 shadow-2xl transition-transform duration-300 group-hover:scale-[1.02]"
-                  onError={(e) => {
-                    // Agar API sahi link de par image uploads folder se delete ho chuki ho, toh component crash nahi hoga
-                    e.target.onerror = null; 
-                    e.target.src = "/hero-img.png"; 
-                  }}
-                />
               )}
+
+              {/* Profile Image */}
+              <img 
+                src={finalImageSrc} 
+                alt="MERN Stack Developer" 
+                onLoad={() => setIsImgLoaded(true)}
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.src = "/hero-img.png"; 
+                  setIsImgLoaded(true);
+                }}
+                className={`relative z-10 w-full h-full object-cover rounded-full border border-white/10 shadow-2xl transition-all duration-700 ease-out ${
+                  isLoading 
+                    ? 'opacity-0 scale-95 blur-sm' 
+                    : 'opacity-100 scale-100 blur-0 group-hover:scale-[1.02]'
+                }`}
+              />
+
+              {/* Electric Yellow Verified Badge */}
+              <div 
+                className={`absolute bottom-[7%] right-[7%] z-20 flex items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.6)] border-2 border-[#121212] transition-all duration-500 ease-out p-1.5 sm:p-2.5 ${
+                  isLoading 
+                    ? 'opacity-0 scale-50 translate-y-2' 
+                    : 'opacity-100 scale-100 translate-y-0'
+                }`}
+                title="Verified MERN Stack Developer"
+              >
+                <svg 
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-black font-black" 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="3.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+
             </div>
           </div>
 
-          {/* RIGHT SIDE: Subtext & Action Buttons */}
-          <div className="flex flex-col items-center lg:items-end text-center lg:text-right order-3">
-            {/* Right Badge */}
-           
-<p className="text-sm sm:text-base lg:text-lg text-neutral-400 mb-8 max-w-lg font-medium leading-relaxed text-left">
-  I'm a <span className="text-white font-semibold">MERN Stack Developer</span> focused on building fast, scalable, and secure web applications with modern technologies, clean architecture, and seamless user experiences.
-</p>
-           
+          {/* RIGHT SIDE: Text with Better Spacing & Alignments */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:pl-4">
+            <p className="text-base sm:text-lg lg:text-lg text-neutral-300 font-normal leading-relaxed max-w-md tracking-wide">
+              I'm a <span className="text-amber-400 font-semibold">MERN Stack Developer</span> focused on building fast, scalable, and secure web applications with modern technologies, clean architecture, and seamless user experiences.
+            </p>
           </div>
           
         </div>
       </div>
 
-          <TopProjects />
-          <SkillsSection />
-          <TestimonialsSection />
-          <Contact />
+      <TopProjects />
+      <SkillsSection />
+      <TestimonialsSection />
+      <Contact />
     </>
   );
-}
+} 
