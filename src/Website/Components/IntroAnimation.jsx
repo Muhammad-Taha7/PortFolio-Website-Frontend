@@ -21,19 +21,19 @@ const IntroAnimation = ({ children }) => {
         }
       });
 
-      // Font Changing Section
-      introTL.to(".intro-text", { duration: 0.15, fontFamily: "Anton" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Jost" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Alkatra" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Nova Oval" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Oswald" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "PT Serif" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Lexend" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Poppins" })
-             .to(".intro-text", { duration: 0.15, fontFamily: "Titillium Web" });
+      // Font Changing Section (Duration badha kar 0.4s kar diya hai)
+      introTL.to(".intro-text", { duration: 0.4, fontFamily: "Anton" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Jost" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Alkatra" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Nova Oval" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Oswald" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "PT Serif" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Lexend" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Poppins" })
+             .to(".intro-text", { duration: 0.4, fontFamily: "Titillium Web" });
 
-      // Outro Screen Sliding
-      introTL.to(".intro-bg", { duration: 1, scaleY: 0, ease: "expo.inOut" })
+      // Outro Screen Sliding (0.5s hold add kiya hai taaki text thoda aur ruke)
+      introTL.to(".intro-bg", { duration: 1, scaleY: 0, ease: "expo.inOut", delay: 0.5 })
              .to(".intro__red", { duration: 1, scaleY: 0, ease: "expo.inOut" }, "-=0.85");
 
       // Animate Main Content In Smoothly
@@ -106,7 +106,7 @@ const IntroAnimation = ({ children }) => {
   return (
     <div ref={container} className={`relative w-full min-h-screen lg:cursor-none ${!introFinished ? 'overflow-hidden h-screen' : ''}`}>
       
-      {/* Intro Overlay (DOM se tabhi hatega jab full animation close ho jaye) */}
+      {/* Intro Overlay */}
       {!introFinished && (
         <div className="fixed inset-0 z-[9999] pointer-events-none">
           <div className="intro__red absolute inset-0 bg-red-600 origin-top transform"></div>
@@ -118,12 +118,12 @@ const IntroAnimation = ({ children }) => {
         </div>
       )}
 
-      {/* Main Content (Initially hidden, GSAP handles its entry) */}
+      {/* Main Content */}
       <div className="main-content-wrapper w-full relative z-10 opacity-0">
         {children}
       </div>
 
-      {/* Custom Cursor (Visible only on PC/Large screens) */}
+      {/* Custom Cursor */}
       <div className="cursor hidden lg:flex fixed top-0 left-0 w-20 h-20 bg-white rounded-full mix-blend-difference pointer-events-none z-[10000] -translate-x-1/2 -translate-y-1/2 scale-0 items-center justify-center">
         <span className="text-black font-bold text-xs tracking-widest uppercase">Explore</span>
       </div>
