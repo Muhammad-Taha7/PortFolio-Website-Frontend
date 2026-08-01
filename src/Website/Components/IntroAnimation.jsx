@@ -21,26 +21,26 @@ const IntroAnimation = ({ children }) => {
         }
       });
 
-      // Font Changing Section (Duration badha kar 0.4s kar diya hai)
-      introTL.to(".intro-text", { duration: 0.4, fontFamily: "Anton" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Jost" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Alkatra" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Nova Oval" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Oswald" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "PT Serif" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Lexend" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Poppins" })
-             .to(".intro-text", { duration: 0.4, fontFamily: "Titillium Web" });
+      // Font Changing Section (Speed up to 0.15s per font for faster loading)
+      introTL.to(".intro-text", { duration: 0.15, fontFamily: "Anton" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Jost" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Alkatra" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Nova Oval" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Oswald" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "PT Serif" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Lexend" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Poppins" })
+             .to(".intro-text", { duration: 0.15, fontFamily: "Titillium Web" });
 
-      // Outro Screen Sliding (0.5s hold add kiya hai taaki text thoda aur ruke)
-      introTL.to(".intro-bg", { duration: 1, scaleY: 0, ease: "expo.inOut", delay: 0.5 })
-             .to(".intro__red", { duration: 1, scaleY: 0, ease: "expo.inOut" }, "-=0.85");
+      // Faster Outro Screen Sliding (reduced delay to 0.1s & duration to 0.6s)
+      introTL.to(".intro-bg", { duration: 0.6, scaleY: 0, ease: "expo.inOut", delay: 0.1 })
+             .to(".intro__red", { duration: 0.6, scaleY: 0, ease: "expo.inOut" }, "-=0.55");
 
       // Animate Main Content In Smoothly
       introTL.fromTo(".main-content-wrapper", 
         { opacity: 0, y: 20 }, 
-        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", clearProps: "transform" }, 
-        "-=0.4"
+        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", clearProps: "transform" }, 
+        "-=0.3"
       );
 
       // Custom Cursor Logic
