@@ -3,27 +3,24 @@ import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 
-// Register GSAP Plugins
 gsap.registerPlugin(Draggable);
 
 export const TopProjects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   const sliderRef = useRef(null);
   const draggableInstance = useRef(null);
-  
+
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Fetch featured projects
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/api/public/projects?featured=true`);
         if (response.ok) {
           const data = await response.json();
-          // Projects ko reverse order me set kar rahe hain
           setProjects([...data].reverse());
         }
       } catch (error) {
@@ -35,7 +32,6 @@ export const TopProjects = () => {
     fetchProjects();
   }, [BACKEND_URL]);
 
-  // Navigation handlers
   const handlePrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
@@ -52,19 +48,20 @@ export const TopProjects = () => {
     }
   };
 
-  // Mouse tilt handlers
+  // Enhanced 3D Tilt + Interactive Glow Handling
   const handleMouseMove = (e) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
-    const rotateX = ((y - centerY) / centerY) * -12; // Max 12 deg tilt
+
+    const rotateX = ((y - centerY) / centerY) * -12;
     const rotateY = ((x - centerX) / centerX) * 12;
 
+    // Apply GSAP 3D Rotation
     gsap.to(card, {
       rotateX: rotateX,
       rotateY: rotateY,
@@ -73,6 +70,16 @@ export const TopProjects = () => {
       transformPerspective: 1000,
       overwrite: 'auto'
     });
+
+    // Update Radial Glow Position dynamically
+    const glowElement = card.querySelector('.card-glow');
+    if (glowElement) {
+      glowElement.style.background = `radial-gradient(
+        600px circle at ${x}px ${y}px,
+        rgba(249, 115, 22, 0.25),
+        transparent 40%
+      )`;
+    }
   };
 
   const handleMouseLeave = (e) => {
@@ -84,18 +91,21 @@ export const TopProjects = () => {
       ease: 'power2.out',
       overwrite: 'auto'
     });
+
+    const glowElement = card.querySelector('.card-glow');
+    if (glowElement) {
+      glowElement.style.background = 'transparent';
+    }
   };
 
-  // GSAP Slide Animation + Drag Setup
   useEffect(() => {
     if (!sliderRef.current || projects.length === 0) return;
 
     const cardElement = sliderRef.current.querySelector('.tp-card-wrapper');
     const cardWidth = cardElement ? cardElement.offsetWidth : 380;
-    const gap = 24; // gap-6 (24px)
+    const gap = 24;
     const step = cardWidth + gap;
 
-    // Smooth Slide Transition
     gsap.to(sliderRef.current, {
       x: -currentIndex * step,
       duration: 0.6,
@@ -103,12 +113,10 @@ export const TopProjects = () => {
       overwrite: 'auto'
     });
 
-    // Clean old instance of draggable
     if (draggableInstance.current) {
       draggableInstance.current[0].kill();
     }
 
-    // Initialize Grabber
     draggableInstance.current = Draggable.create(sliderRef.current, {
       type: "x",
       edgeResistance: 0.75,
@@ -132,7 +140,6 @@ export const TopProjects = () => {
 
   return (
     <div className="w-full bg-[#070707] py-20 md:py-28 overflow-hidden relative" style={{ fontFamily: "'Poppins', sans-serif" }}>
-      {/* Background Decor */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
@@ -148,7 +155,6 @@ export const TopProjects = () => {
             <div className="w-16 h-1 bg-orange-500 mt-4 rounded-full"></div>
           </div>
 
-          {/* Navigation Controls */}
           {projects.length > 0 && (
             <div className="flex items-center gap-3">
               <button
@@ -170,7 +176,7 @@ export const TopProjects = () => {
           )}
         </div>
 
-        {/* Slider Container */}
+        {/* Cards Slider */}
         {loading ? (
           <div className="h-[400px] flex items-center justify-center">
             <span className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
@@ -198,15 +204,17 @@ export const TopProjects = () => {
                       className="tp-card-wrapper w-[300px] sm:w-[380px] shrink-0"
                       style={{ perspective: '1000px' }}
                     >
-                      {/* Tilt Card Container */}
-                      <div 
+                      {/* 3D Tilt Card */}
+                      <div
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        className="group relative bg-[#111111] border border-white/10 overflow-hidden hover:border-orange-500/50 transition-colors duration-500 flex flex-col h-[440px] sm:h-[480px] shadow-2xl rounded-sm"
+                        className="group relative bg-[#111111] border border-white/10 overflow-hidden hover:border-orange-500/50 transition-colors duration-500 flex flex-col h-[440px] sm:h-[480px] shadow-2xl rounded-xl"
                         style={{ transformStyle: 'preserve-3d' }}
                       >
-                        
-                        {/* Crisp Image Container */}
+                        {/* Interactive Dynamic Radial Glow Layer */}
+                        <div className="card-glow pointer-events-none absolute inset-0 z-20 transition-opacity duration-300 rounded-xl" />
+
+                        {/* Image Section */}
                         <div className="w-full h-[240px] sm:h-[280px] overflow-hidden relative bg-black/40">
                           <img
                             src={imgUrl}
@@ -214,20 +222,20 @@ export const TopProjects = () => {
                             loading="eager"
                             className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform transform-gpu"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-80"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-90 z-10"></div>
                         </div>
 
-                        {/* Card Info */}
+                        {/* Details Section */}
                         <div className="p-6 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
                           <div>
                             <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 line-clamp-1 group-hover:text-orange-400 transition-colors">
                               {project.name}
                             </h3>
-                            
+
                             {project.technologies && project.technologies.length > 0 && (
                               <div className="flex flex-wrap gap-1.5 mb-4">
                                 {project.technologies.slice(0, 4).map((tech, idx) => (
-                                  <span key={idx} className="text-[11px] font-medium px-2.5 py-0.5 bg-white/5 text-neutral-300 border border-white/10 rounded-xs">
+                                  <span key={idx} className="text-[11px] font-medium px-2.5 py-0.5 bg-white/5 text-neutral-300 border border-white/10 rounded-md">
                                     {tech}
                                   </span>
                                 ))}
@@ -235,15 +243,13 @@ export const TopProjects = () => {
                             )}
                           </div>
 
-                          {/* Action button */}
                           <Link
                             to={`/project/${project._id}`}
-                            className="inline-flex items-center justify-center w-full py-3 px-4 bg-white/5 hover:bg-orange-500 text-white font-semibold transition-all duration-300 border border-white/10 hover:border-orange-500 text-xs tracking-wider uppercase select-none mt-2"
+                            className="inline-flex items-center justify-center w-full py-3 px-4 bg-white/5 hover:bg-orange-500 text-white font-semibold transition-all duration-300 border border-white/10 hover:border-orange-500 text-xs tracking-wider uppercase select-none rounded-md mt-2"
                           >
                             View Details
                           </Link>
                         </div>
-
                       </div>
                     </div>
                   );
@@ -253,7 +259,7 @@ export const TopProjects = () => {
           </div>
         )}
 
-        {/* View All Projects Button */}
+        {/* View All Button */}
         <div className="mt-14 sm:mt-16 flex justify-center">
           <Link
             to="/projects"
@@ -277,7 +283,6 @@ export const TopProjects = () => {
             </svg>
           </Link>
         </div>
-
       </div>
     </div>
   );

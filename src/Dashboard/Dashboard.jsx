@@ -47,10 +47,17 @@ export const Dashboard = () => {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message || 'Profile successfully updated!');
+                setMessage((data.message || 'Profile updated successfully!') + ' Logging out, please sign in with your new credentials...');
                 setNewPassword('');
                 setNewUsername('');
+                setTimeout(() => {
+                    dispatch(logout());
+                }, 1500);
             } else {
+                if (res.status === 401) {
+                    dispatch(logout());
+                    return;
+                }
                 setIsError(true);
                 setMessage(data.message || 'Failed to update profile.');
             }

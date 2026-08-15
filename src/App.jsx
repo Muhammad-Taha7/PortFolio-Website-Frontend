@@ -40,18 +40,94 @@ const WebsiteLayout = () => {
   );
 };
 
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+};
+
 export const App = () => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // Intercept all fetch requests globally: if response is 401 (token reset/invalid/expired), automatically logout
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      if (response.status === 401) {
+        dispatch(logout());
+      }
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [dispatch]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      dispatch(loginSuccess(token));
-    } else {
-      dispatch(logout());
-    }
-  }, [dispatch]);
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token || isTokenExpired(token)) {
+        dispatch(logout());
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          dispatch(loginSuccess(token));
+        } else if (res.status === 401) {
+          dispatch(logout());
+        }
+      } catch (err) {
+        if (isTokenExpired(token)) {
+          dispatch(logout());
+        }
+      }
+    };
+
+    checkAuth();
+
+    // Listen to localStorage changes across tabs/windows
+    const handleStorageChange = (e) => {
+      if (e.key === 'token') {
+        if (!e.newValue || isTokenExpired(e.newValue)) {
+          dispatch(logout());
+        } else {
+          dispatch(loginSuccess(e.newValue));
+        }
+      }
+    };
+
+    // Periodic check for token expiry
+    const interval = setInterval(() => {
+      const token = localStorage.getItem('token');
+      if (token && isTokenExpired(token)) {
+        dispatch(logout());
+      }
+    }, 15000);
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [dispatch, BACKEND_URL]);
 
   return (
     <Routes>

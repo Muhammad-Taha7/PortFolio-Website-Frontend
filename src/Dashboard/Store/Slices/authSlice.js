@@ -1,8 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return true;
+        const payload = JSON.parse(atob(parts[1]));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+            return true;
+        }
+        return false;
+    } catch {
+        return true;
+    }
+};
+
+const initialToken = localStorage.getItem('token');
+const validInitialToken = initialToken && !isTokenExpired(initialToken) ? initialToken : null;
+if (initialToken && !validInitialToken) {
+    localStorage.removeItem('token');
+}
+
 const initialState = {
-    token: localStorage.getItem('token') || null,
-    isAuthenticated: !!localStorage.getItem('token'),
+    token: validInitialToken,
+    isAuthenticated: !!validInitialToken,
     loading: false,
     error: null,
 };
