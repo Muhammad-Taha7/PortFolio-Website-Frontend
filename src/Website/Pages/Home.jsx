@@ -182,11 +182,40 @@ export const Home = () => {
             </div>
           </div>
 
-          {/* RIGHT SIDE: Text with Better Spacing & Alignments */}
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:pl-4">
-            <p className="text-base sm:text-lg lg:text-lg text-neutral-300 font-normal leading-relaxed max-w-md tracking-wide">
-              I'm a <span className="text-amber-400 font-semibold">MERN Stack Developer</span> focused on building fast, scalable, and secure web applications with modern technologies, clean architecture, and seamless user experiences.
-            </p>
+          {/* RIGHT SIDE: Permanent Tooltip / Speech Bubble Callout */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:pl-4 w-full max-w-sm sm:max-w-md">
+            <div className="relative group w-full">
+              
+              {/* Subtle ambient glow behind the tooltip */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent rounded-3xl blur-xl opacity-60 pointer-events-none"></div>
+
+              {/* Tooltip Card Body */}
+              <div className="relative bg-[#141418]/95 border border-white/10 hover:border-amber-500/30 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-[0_15px_35px_rgba(0,0,0,0.6)] transition-all duration-300">
+                
+                {/* Tooltip Arrow Pointer (Left pointer on desktop, Top pointer on mobile) */}
+                {/* Desktop Pointer (Pointing Left towards Hero Image) */}
+                <div className="hidden lg:block absolute -left-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-[10px] border-y-transparent border-r-[12px] border-r-[#141418]/95 z-20"></div>
+                <div className="hidden lg:block absolute -left-[14px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[11px] border-y-transparent border-r-[14px] border-r-white/10 z-10"></div>
+
+                {/* Mobile Pointer (Pointing Up towards Hero Image) */}
+                <div className="block lg:hidden absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[10px] border-x-transparent border-b-[12px] border-b-[#141418]/95 z-20"></div>
+                <div className="block lg:hidden absolute -top-[14px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[11px] border-x-transparent border-b-[14px] border-b-white/10 z-10"></div>
+
+                {/* Mini Header Tag inside Tooltip */}
+                <div className="flex items-center justify-center lg:justify-start gap-2 mb-2.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-amber-400">
+                    BIO // QUICK INTRO
+                  </span>
+                </div>
+
+                {/* Tooltip Text Content */}
+                <p className="text-xs sm:text-sm md:text-base text-neutral-300 font-normal leading-relaxed tracking-wide">
+                  I'm a <span className="text-amber-400 font-semibold">MERN Stack Developer</span> focused on building fast, scalable, and secure web applications with modern technologies, clean architecture, and seamless user experiences.
+                </p>
+              </div>
+
+            </div>
           </div>
           
         </div>
