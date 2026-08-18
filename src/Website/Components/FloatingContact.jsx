@@ -18,10 +18,10 @@ export const FloatingContact = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-8 right-8 z-[9999] flex flex-col items-center gap-5">
+      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[9999] flex flex-col items-center gap-3 sm:gap-5">
         {/* Floating Contact Options */}
         <div
-          className={`flex flex-col gap-4 transition-all duration-300 ease-out origin-bottom ${
+          className={`flex flex-col gap-3 sm:gap-4 transition-all duration-300 ease-out origin-bottom ${
             isOpen
               ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
               : 'opacity-0 scale-50 translate-y-10 pointer-events-none'
@@ -31,10 +31,10 @@ export const FloatingContact = () => {
           <a
             href="mailto:meet.tahadev@gmail.com"
             title="Email Me"
-            className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
+            className="group relative flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
           >
-            <FaEnvelope size={24} />
-            <span className="absolute right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <FaEnvelope className="text-lg sm:text-2xl" />
+            <span className="absolute right-14 sm:right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Email
             </span>
           </a>
@@ -45,10 +45,10 @@ export const FloatingContact = () => {
             target="_blank"
             rel="noopener noreferrer"
             title="LinkedIn"
-            className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
+            className="group relative flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
           >
-            <FaLinkedin size={26} />
-            <span className="absolute right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <FaLinkedin className="text-xl sm:text-2xl" />
+            <span className="absolute right-14 sm:right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               LinkedIn
             </span>
           </a>
@@ -59,10 +59,10 @@ export const FloatingContact = () => {
             target="_blank"
             rel="noopener noreferrer"
             title="WhatsApp"
-            className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
+            className="group relative flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-full shadow-xl hover:scale-110 transition-transform duration-200"
           >
-            <FaWhatsapp size={28} />
-            <span className="absolute right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <FaWhatsapp className="text-xl sm:text-3xl" />
+            <span className="absolute right-14 sm:right-16 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               WhatsApp
             </span>
           </a>
@@ -72,7 +72,7 @@ export const FloatingContact = () => {
         <div className="relative flex items-center justify-center">
           {/* Circular Marquee Ring (Visible when menu is closed) */}
           <div
-            className={`absolute w-32 h-32 pointer-events-none transition-opacity duration-300 ${
+            className={`absolute w-24 h-24 sm:w-32 sm:h-32 pointer-events-none transition-opacity duration-300 ${
               isOpen ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
             }`}
           >
@@ -94,16 +94,16 @@ export const FloatingContact = () => {
             </svg>
           </div>
 
-          {/* Main Action Button (Larger w-20 h-20) */}
+          {/* Main Action Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle Contact Menu"
-            className="relative z-10 w-20 h-20 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(249,115,22,0.4)] hover:shadow-[0_15px_30px_rgba(249,115,22,0.6)] hover:scale-105 active:scale-95 transition-all duration-300"
+            className="relative z-10 w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(249,115,22,0.4)] hover:shadow-[0_15px_30px_rgba(249,115,22,0.6)] hover:scale-105 active:scale-95 transition-all duration-300"
           >
             {isOpen ? (
-              <X size={34} className="transition-transform duration-300 rotate-90" />
+              <X className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-300 rotate-90" />
             ) : (
-              <MessageCircle size={34} className="transition-transform duration-300" />
+              <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-300" />
             )}
           </button>
         </div>
