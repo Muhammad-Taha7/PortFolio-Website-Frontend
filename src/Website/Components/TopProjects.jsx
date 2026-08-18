@@ -48,47 +48,50 @@ export const TopProjects = () => {
     }
   };
 
-  // Enhanced 3D Tilt + Interactive Glow Handling
+  // Fixed 3D Tilt + Interactive Glow Logic
   const handleMouseMove = (e) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
+    
+    // Mouse coordinates relative to card center
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateX = ((y - centerY) / centerY) * -12; // Adjusted intensity
     const rotateY = ((x - centerX) / centerX) * 12;
 
-    // Apply GSAP 3D Rotation
+    // Apply smooth GSAP 3D Tilt
     gsap.to(card, {
       rotateX: rotateX,
       rotateY: rotateY,
-      duration: 0.3,
-      ease: 'power2.out',
       transformPerspective: 1000,
+      ease: 'power1.out',
+      duration: 0.2,
       overwrite: 'auto'
     });
 
-    // Update Radial Glow Position dynamically
+    // Dynamic Radial Mouse Glow
     const glowElement = card.querySelector('.card-glow');
     if (glowElement) {
       glowElement.style.background = `radial-gradient(
-        600px circle at ${x}px ${y}px,
+        500px circle at ${x}px ${y}px,
         rgba(249, 115, 22, 0.25),
-        transparent 40%
+        transparent 50%
       )`;
     }
   };
 
   const handleMouseLeave = (e) => {
     const card = e.currentTarget;
+    
+    // Reset Tilt Smoothly
     gsap.to(card, {
       rotateX: 0,
       rotateY: 0,
-      duration: 0.5,
       ease: 'power2.out',
+      duration: 0.5,
       overwrite: 'auto'
     });
 
@@ -102,8 +105,8 @@ export const TopProjects = () => {
     if (!sliderRef.current || projects.length === 0) return;
 
     const cardElement = sliderRef.current.querySelector('.tp-card-wrapper');
-    const cardWidth = cardElement ? cardElement.offsetWidth : 380;
-    const gap = 24;
+    const cardWidth = cardElement ? cardElement.offsetWidth : 460;
+    const gap = 32;
     const step = cardWidth + gap;
 
     gsap.to(sliderRef.current, {
@@ -140,14 +143,15 @@ export const TopProjects = () => {
 
   return (
     <div className="w-full bg-[#070707] py-20 md:py-28 overflow-hidden relative" style={{ fontFamily: "'Poppins', sans-serif" }}>
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+      {/* Background Ambient Lights */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[140px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         {/* Header Block */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
           <div>
             <span className="text-orange-500 font-bold uppercase tracking-[0.2em] text-xs block mb-3">
-              Portfolio
+              Featured Portfolio
             </span>
             <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white">
               Top Projects
@@ -159,18 +163,18 @@ export const TopProjects = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrev}
-                className="w-11 h-11 rounded-full border border-white/10 bg-white/[0.03] text-white flex items-center justify-center transition-all duration-300 hover:bg-orange-500 hover:border-orange-500 active:scale-95 group"
+                className="w-12 h-12 rounded-full border border-white/10 bg-white/[0.03] text-white flex items-center justify-center transition-colors duration-300 hover:bg-orange-500 hover:border-orange-500 active:scale-95 group shadow-lg"
                 aria-label="Previous Project"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5"><path d="m15 18-6-6 6-6" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5"><path d="m15 18-6-6 6-6" /></svg>
               </button>
 
               <button
                 onClick={handleNext}
-                className="w-11 h-11 rounded-full border border-white/10 bg-white/[0.03] text-white flex items-center justify-center transition-all duration-300 hover:bg-orange-500 hover:border-orange-500 active:scale-95 group"
+                className="w-12 h-12 rounded-full border border-white/10 bg-white/[0.03] text-white flex items-center justify-center transition-colors duration-300 hover:bg-orange-500 hover:border-orange-500 active:scale-95 group shadow-lg"
                 aria-label="Next Project"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5"><path d="m9 18 6-6-6-6" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5"><path d="m9 18 6-6-6-6" /></svg>
               </button>
             </div>
           )}
@@ -178,8 +182,8 @@ export const TopProjects = () => {
 
         {/* Cards Slider */}
         {loading ? (
-          <div className="h-[400px] flex items-center justify-center">
-            <span className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+          <div className="h-[450px] flex items-center justify-center">
+            <span className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
           </div>
         ) : projects.length === 0 ? (
           <div className="h-[180px] flex items-center justify-center text-white/50 text-sm">
@@ -190,7 +194,7 @@ export const TopProjects = () => {
             <div className="w-full">
               <div
                 ref={sliderRef}
-                className="flex gap-6 cursor-grab active:cursor-grabbing select-none py-4"
+                className="flex gap-8 cursor-grab active:cursor-grabbing select-none py-6"
                 style={{ willChange: 'transform' }}
               >
                 {projects.map((project, index) => {
@@ -201,41 +205,54 @@ export const TopProjects = () => {
                   return (
                     <div
                       key={project._id || index}
-                      className="tp-card-wrapper w-[300px] sm:w-[380px] shrink-0"
+                      className="tp-card-wrapper w-[340px] sm:w-[460px] shrink-0"
                       style={{ perspective: '1000px' }}
                     >
-                      {/* 3D Tilt Card */}
+                      {/* Fixed 3D Tilt Card Container */}
                       <div
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        className="group relative bg-[#111111] border border-white/10 overflow-hidden hover:border-orange-500/50 transition-colors duration-500 flex flex-col h-[440px] sm:h-[480px] shadow-2xl rounded-xl"
-                        style={{ transformStyle: 'preserve-3d' }}
+                        className="group relative bg-[#111111] border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/70 transition-colors duration-300 flex flex-col h-[520px] sm:h-[560px] shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                        style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
                       >
+                        {/* --- CORNER ORANGE LIGHTS & ACCENTS --- */}
+                        <div className="absolute top-0 left-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-tl-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
+                        <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-orange-500 rounded-tl-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
+
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-tr-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
+                        <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-orange-500 rounded-tr-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
+
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-bl-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
+                        <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-orange-500 rounded-bl-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
+
+                        <div className="absolute bottom-0 right-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-br-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
+                        <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-orange-500 rounded-br-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
+
                         {/* Interactive Dynamic Radial Glow Layer */}
-                        <div className="card-glow pointer-events-none absolute inset-0 z-20 transition-opacity duration-300 rounded-xl" />
+                        <div className="card-glow pointer-events-none absolute inset-0 z-20 rounded-2xl" />
 
                         {/* Image Section */}
-                        <div className="w-full h-[240px] sm:h-[280px] overflow-hidden relative bg-black/40">
+                        <div className="w-full h-[280px] sm:h-[320px] overflow-hidden relative bg-black/50 pointer-events-none">
                           <img
                             src={imgUrl}
                             alt={project.name}
                             loading="eager"
-                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform transform-gpu"
+                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-90 z-10"></div>
                         </div>
 
                         {/* Details Section */}
-                        <div className="p-6 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
+                        <div className="p-7 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
                           <div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 line-clamp-1 group-hover:text-orange-400 transition-colors">
+                            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 line-clamp-1 group-hover:text-orange-400 transition-colors tracking-wide">
                               {project.name}
                             </h3>
 
                             {project.technologies && project.technologies.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mb-4">
-                                {project.technologies.slice(0, 4).map((tech, idx) => (
-                                  <span key={idx} className="text-[11px] font-medium px-2.5 py-0.5 bg-white/5 text-neutral-300 border border-white/10 rounded-md">
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                {project.technologies.slice(0, 5).map((tech, idx) => (
+                                  <span key={idx} className="text-xs font-semibold px-3 py-1 bg-white/5 text-neutral-300 border border-white/10 rounded-lg group-hover:border-orange-500/30 transition-colors">
                                     {tech}
                                   </span>
                                 ))}
@@ -245,7 +262,7 @@ export const TopProjects = () => {
 
                           <Link
                             to={`/project/${project._id}`}
-                            className="inline-flex items-center justify-center w-full py-3 px-4 bg-white/5 hover:bg-orange-500 text-white font-semibold transition-all duration-300 border border-white/10 hover:border-orange-500 text-xs tracking-wider uppercase select-none rounded-md mt-2"
+                            className="inline-flex items-center justify-center w-full py-3.5 px-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold transition-all duration-300 shadow-[0_4px_20px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_25px_rgba(249,115,22,0.5)] text-xs tracking-[0.15em] uppercase select-none rounded-xl mt-2 relative z-30"
                           >
                             View Details
                           </Link>
@@ -263,13 +280,13 @@ export const TopProjects = () => {
         <div className="mt-14 sm:mt-16 flex justify-center">
           <Link
             to="/projects"
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-transparent border border-orange-500/40 text-white text-xs sm:text-sm font-bold tracking-[0.2em] uppercase transition-all duration-300 hover:bg-orange-500 hover:border-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)] active:scale-95"
+            className="group relative inline-flex items-center gap-3 px-9 py-4 bg-transparent border-2 border-orange-500/50 text-white text-xs sm:text-sm font-bold tracking-[0.2em] uppercase rounded-xl transition-all duration-300 hover:bg-orange-500 hover:border-orange-500 hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] active:scale-95"
           >
             <span>View All Projects</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

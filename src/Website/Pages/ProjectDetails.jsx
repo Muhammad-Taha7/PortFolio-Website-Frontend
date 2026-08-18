@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { 
+  ChevronLeft, ChevronRight, Maximize2, X, ExternalLink, 
+  GitBranch, ArrowLeft, Calendar, Layers, Sparkles 
+} from 'lucide-react';
 
 export const ProjectDetails = () => {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -25,19 +30,85 @@ export const ProjectDetails = () => {
       }
     };
     fetchProject();
-  }, [id]);
+  }, [id, BACKEND_URL]);
+
+  const images = project?.images && project.images.length > 0 ? project.images : [];
+
+  const handlePrev = useCallback(() => {
+    if (images.length <= 1) return;
+    setActiveImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+
+  const handleNext = useCallback(() => {
+    if (images.length <= 1) return;
+    setActiveImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+
+  // Keyboard navigation for carousel and lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'Escape') setIsLightboxOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handlePrev, handleNext]);
 
   const getImageUrl = (img) => {
     if (!img) return '/placeholder.jpg';
     return img.startsWith('http') ? img : `${BACKEND_URL}${img.startsWith('/') ? '' : '/'}${img}`;
   };
 
+  // Description formatted renderer
+  const renderFormattedDescription = (description) => {
+    if (!description) return null;
+    const lines = description.split('\n');
+
+    return (
+      <div className="space-y-6 text-gray-300">
+        {lines.map((line, index) => {
+          const trimmed = line.trim();
+          if (!trimmed) return null;
+
+          if (trimmed.endsWith(':') || trimmed.startsWith('#')) {
+            const cleanTitle = trimmed.replace(/^#+\s*/, '');
+            return (
+              <h3 key={index} className="text-xl font-bold text-white pt-4 pb-1 border-b border-white/10">
+                {cleanTitle}
+              </h3>
+            );
+          }
+
+          const bulletMatch = trimmed.match(/^[-•*]\s*(.*)/) || trimmed.match(/^(\d+\.)\s*(.*)/);
+          if (bulletMatch) {
+            const content = bulletMatch[2] || bulletMatch[1];
+            return (
+              <div key={index} className="flex items-start gap-4 pl-2 group">
+                <span className="w-2 h-2 rounded-full bg-orange-500 mt-2.5 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></span>
+                <p className="text-base md:text-lg leading-relaxed text-gray-300">
+                  {content}
+                </p>
+              </div>
+            );
+          }
+
+          return (
+            <p key={index} className="text-base md:text-lg leading-relaxed text-gray-300 font-normal">
+              {trimmed}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center" style={{ fontFamily: "'Clarity City', sans-serif" }}>
-        <div className="flex items-center gap-3 text-white/50">
-          <span className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
-          Loading project...
+      <div className="min-h-screen bg-[#070707] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-white/60">
+          <span className="w-10 h-10 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+          <span className="text-sm font-medium tracking-wide">Loading project details...</span>
         </div>
       </div>
     );
@@ -45,233 +116,323 @@ export const ProjectDetails = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-6" style={{ fontFamily: "'Clarity City', sans-serif" }}>
-        <h2 className="text-3xl font-bold text-white">Project Not Found</h2>
-        <Link to="/" className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors">
-          Go Back Home
+      <div className="min-h-screen bg-[#070707] flex flex-col items-center justify-center gap-6 px-4 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-orange-500 mb-2">
+          <Layers size={36} />
+        </div>
+        <h2 className="text-3xl font-black text-white uppercase tracking-tight">Project Not Found</h2>
+        <p className="text-gray-400 max-w-md text-sm">
+          The requested project might have been moved or removed.
+        </p>
+        <Link 
+          to="/Projects" 
+          className="px-6 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20"
+        >
+          <ArrowLeft size={18} /> Back to Projects
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white" style={{ fontFamily: "'Clarity City', sans-serif" }}>
+    <div className="min-h-screen bg-[#070707] text-white selection:bg-orange-500 selection:text-white pt-24 pb-20">
 
-      {/* ===== FULL-WIDTH HERO IMAGE ===== */}
-      <div className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden">
-        <img
-          src={getImageUrl(project.images?.[activeImage])}
-          alt={project.name}
-          className="w-full h-full object-cover transition-all duration-700"
-        />
-        {/* Multi-layer gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/60 to-transparent"></div>
+      {/* ===== TOP PROJECT CAROUSEL SECTION ===== */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         
-        {/* Back Button */}
-        <Link 
-          to="/"
-          className="absolute top-8 left-8 md:top-12 md:left-12 z-20 flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
-        </Link>
+        {/* Navigation Bar / Breadcrumb */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Link 
+            to="/Projects"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/80 hover:text-white transition-all text-xs font-semibold uppercase tracking-wider group"
+          >
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+            Back to Projects
+          </Link>
 
-        {/* Hero Title Overlay - Full Width, Bottom Left */}
-        <div className="absolute bottom-0 left-0 right-0 px-8 md:px-12 lg:px-16 pb-12 md:pb-20 z-10">
-          <span className="inline-block text-orange-500 font-bold uppercase tracking-[0.25em] text-[10px] sm:text-xs mb-4">
-            Project Case Study
-          </span>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.95] max-w-4xl">
-            {project.name}
-          </h1>
+          <div className="flex items-center gap-3">
+            {images.length > 0 && (
+              <button
+                onClick={() => setIsLightboxOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-orange-500/20 hover:border-orange-500/40 border border-white/10 rounded-full text-white/80 hover:text-orange-400 transition-all text-xs font-semibold uppercase tracking-wider cursor-pointer"
+              >
+                <Maximize2 size={13} />
+                Fullscreen
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Carousel Frame */}
+        <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[75vh] bg-[#0f0f11] rounded-3xl overflow-hidden border border-white/10 shadow-2xl group/carousel">
           
-          {/* Quick Tech Tags under title */}
-          {project.technologies && project.technologies.length > 0 && (
-            <div className="flex gap-2 flex-wrap mt-6">
-              {project.technologies.map(tech => (
-                <span 
-                  key={tech} 
-                  className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-white/10 backdrop-blur-sm border border-white/10 text-white/70 rounded-full"
-                >
-                  {tech}
-                </span>
-              ))}
+          {images.length > 0 ? (
+            <>
+              {/* Main Display Image */}
+              <div className="w-full h-full relative overflow-hidden bg-black/40 flex items-center justify-center">
+                <img
+                  src={getImageUrl(images[activeImage])}
+                  alt={`${project.name} - slide ${activeImage + 1}`}
+                  className="w-full h-full object-contain md:object-cover transition-all duration-500 ease-out"
+                />
+                
+                {/* Subtle gradient vignette for overlay contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+              </div>
+
+              {/* Prev / Next Slide Arrow Buttons */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    aria-label="Previous Image"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/60 hover:bg-orange-500 text-white backdrop-blur-md border border-white/15 flex items-center justify-center opacity-80 sm:opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 hover:scale-110 shadow-xl cursor-pointer z-20"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    aria-label="Next Image"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/60 hover:bg-orange-500 text-white backdrop-blur-md border border-white/15 flex items-center justify-center opacity-80 sm:opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 hover:scale-110 shadow-xl cursor-pointer z-20"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+
+              {/* Carousel Bottom Control Bar: Counter + Thumbnail Pills */}
+              <div className="absolute bottom-4 inset-x-4 flex flex-col sm:flex-row items-center justify-between gap-3 z-20 pointer-events-none">
+                
+                {/* Image Counter Badge */}
+                <div className="pointer-events-auto px-4 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-xs font-mono font-bold text-white/90 shadow-lg">
+                  {String(activeImage + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
+                </div>
+
+                {/* Thumbnails Mini Strip */}
+                {images.length > 1 && (
+                  <div className="pointer-events-auto flex items-center gap-2 bg-black/70 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 max-w-full overflow-x-auto shadow-lg">
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveImage(idx)}
+                        className={`relative h-10 w-14 sm:h-12 sm:w-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer flex-shrink-0 ${
+                          activeImage === idx
+                            ? 'border-orange-500 scale-105 shadow-md shadow-orange-500/30'
+                            : 'border-white/20 opacity-60 hover:opacity-100 hover:border-white/50'
+                        }`}
+                        aria-label={`View slide ${idx + 1}`}
+                      >
+                        <img 
+                          src={getImageUrl(img)} 
+                          alt="" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 gap-3">
+              <Layers size={48} className="opacity-40" />
+              <p className="text-sm font-medium">No screenshots uploaded for this project</p>
             </div>
           )}
         </div>
-
-        {/* Image Counter - Bottom Right */}
-        {project.images && project.images.length > 1 && (
-          <div className="absolute bottom-12 md:bottom-20 right-8 md:right-12 lg:right-16 z-10 flex items-center gap-4">
-            <button
-              onClick={() => setActiveImage(prev => Math.max(0, prev - 1))}
-              disabled={activeImage === 0}
-              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:border-orange-500 hover:text-orange-500 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed backdrop-blur-sm"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <span className="text-sm font-bold text-white/50 tracking-widest tabular-nums">
-              {String(activeImage + 1).padStart(2, '0')} / {String(project.images.length).padStart(2, '0')}
-            </span>
-            <button
-              onClick={() => setActiveImage(prev => Math.min(project.images.length - 1, prev + 1))}
-              disabled={activeImage === project.images.length - 1}
-              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:border-orange-500 hover:text-orange-500 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed backdrop-blur-sm"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* ===== FULL-WIDTH CONTENT SECTION ===== */}
-      <div className="w-full px-8 md:px-12 lg:px-16 py-16 md:py-24">
-        
-        {/* Two Column Layout - Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20">
+      {/* ===== PROJECT DETAILS & CONTENT ===== */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
-          {/* Left: Description - Takes 8 columns */}
-          <div className="lg:col-span-8 space-y-10">
+          {/* Left Main Content: Title, Badges & Formatted Description */}
+          <div className="lg:col-span-8 space-y-8">
             
-            {/* Description */}
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-6">About This Project</h2>
-              <div className="w-12 h-[2px] bg-orange-500 mb-8"></div>
-              <div className="space-y-4">
-                {project.description.split('\n').map((line, i) => {
-                  const trimmed = line.trim();
-                  if (!trimmed) return null;
-                  
-                  // Detect bullet points: lines starting with -, •, or *
-                  const bulletMatch = trimmed.match(/^[-•*]\s*(.*)/);
-                  if (bulletMatch) {
+            {/* Title Card */}
+            <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 sm:p-10 backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                <span className="text-orange-500 font-bold uppercase tracking-[0.2em] text-xs">
+                  Featured Showcase
+                </span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white mb-6">
+                {project.name}
+              </h1>
+
+              {/* Technologies Badges */}
+              {project.technologies && (
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                  {(Array.isArray(project.technologies) 
+                    ? project.technologies 
+                    : project.technologies.split(',')
+                  ).map((tech, idx) => {
+                    const cleanTech = tech.trim();
+                    if (!cleanTech) return null;
                     return (
-                      <div key={i} className="flex items-start gap-3 pl-2">
-                        <span className="w-2 h-2 rounded-full bg-orange-500 mt-2.5 flex-shrink-0"></span>
-                        <p className="text-base md:text-lg text-gray-300 leading-relaxed">{bulletMatch[1]}</p>
-                      </div>
-                    );
-                  }
-                  
-                  // Regular paragraph
-                  return (
-                    <p key={i} className="text-lg md:text-xl text-gray-300 leading-relaxed font-light">
-                      {trimmed}
-                    </p>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Image Gallery - Full Width Grid */}
-            {project.images && project.images.length > 1 && (
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-6">Gallery</h2>
-                <div className="w-12 h-[2px] bg-orange-500 mb-8"></div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {project.images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setActiveImage(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className={`relative aspect-video rounded-xl overflow-hidden border-2 transition-all duration-300 group ${
-                        activeImage === i 
-                          ? 'border-orange-500 ring-2 ring-orange-500/30' 
-                          : 'border-white/5 hover:border-white/20'
-                      }`}
-                    >
-                      <img
-                        src={getImageUrl(img)}
-                        alt={`${project.name} screenshot ${i + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300"></div>
-                      <span className="absolute bottom-2 right-2 text-[10px] font-bold text-white/50 tracking-widest">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right: Sidebar - Takes 4 columns */}
-          <div className="lg:col-span-4 space-y-10">
-            
-            {/* Sticky Sidebar */}
-            <div className="lg:sticky lg:top-32 space-y-10">
-
-              {/* Technologies */}
-              {project.technologies && project.technologies.length > 0 && (
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-5">Tech Stack</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    {project.technologies.map(tech => (
                       <span 
-                        key={tech} 
-                        className="text-xs font-semibold uppercase tracking-wider px-4 py-2 bg-white/5 border border-white/10 text-gray-300 rounded-full hover:border-orange-500/50 hover:text-orange-400 transition-all duration-300"
+                        key={idx} 
+                        className="text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full"
                       >
-                        {tech}
+                        {cleanTech}
                       </span>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               )}
+            </div>
 
-              {/* Action Buttons */}
-              <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6 space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-5">Project Links</h3>
+            {/* Description Card */}
+            <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 sm:p-10 backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <Sparkles size={18} className="text-orange-500" />
+                <h2 className="text-sm font-bold uppercase tracking-[0.25em] text-orange-500">
+                  About the Project
+                </h2>
+              </div>
+              
+              {renderFormattedDescription(project.description)}
+            </div>
+
+          </div>
+
+          {/* Right Sidebar: Actions & Metadata */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="lg:sticky lg:top-28 space-y-6">
+
+              {/* Action Links Box */}
+              <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-sm space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-4">
+                  Project Links
+                </h3>
+
                 {project.liveLink && (
                   <a 
                     href={project.liveLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-2xl font-bold text-sm hover:shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    View Live Site
+                    <ExternalLink size={18} />
+                    Live Demo
                   </a>
                 )}
+
                 {project.githubLink && (
                   <a 
                     href={project.githubLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold text-sm hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    View Source Code
+                    <GitBranch size={18} />
+                    Source Code
                   </a>
                 )}
+
                 {!project.liveLink && !project.githubLink && (
-                  <p className="text-gray-500 text-sm text-center py-4">No links available for this project.</p>
+                  <p className="text-gray-500 text-xs text-center py-2">
+                    Direct repository & demo links are unavailable for this project.
+                  </p>
                 )}
               </div>
 
-              {/* Date */}
-              {project.createdAt && (
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-3">Published</h3>
-                  <p className="text-gray-300 text-base font-medium">
-                    {new Date(project.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
+              {/* Technologies Box */}
+              {project.technologies && (
+                <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
+                  <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500 mb-4">
+                    Tech Stack & Tools
+                  </h3>
+                  <div className="flex gap-2 flex-wrap">
+                    {(Array.isArray(project.technologies) 
+                      ? project.technologies 
+                      : project.technologies.split(',')
+                    ).map((tech, idx) => {
+                      const clean = tech.trim();
+                      if (!clean) return null;
+                      return (
+                        <span 
+                          key={idx} 
+                          className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 bg-white/5 border border-white/10 text-gray-300 rounded-xl"
+                        >
+                          {clean}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
+
+              {/* Publish Info Box */}
+              {project.createdAt && (
+                <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-sm flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center flex-shrink-0">
+                    <Calendar size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Release Date</h4>
+                    <p className="text-sm font-semibold text-white mt-0.5">
+                      {new Date(project.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
+
         </div>
       </div>
+
+      {/* ===== FULLSCREEN LIGHTBOX MODAL ===== */}
+      {isLightboxOpen && images.length > 0 && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+          <button 
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close Lightbox"
+            className="absolute top-6 right-6 text-white/70 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all cursor-pointer z-50"
+          >
+            <X size={24} />
+          </button>
+
+          <div className="relative max-w-7xl max-h-[85vh] w-full flex items-center justify-center">
+            <img 
+              src={getImageUrl(images[activeImage])} 
+              alt="Fullscreen Preview"
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+            />
+          </div>
+
+          {images.length > 1 && (
+            <div className="flex items-center gap-6 mt-6">
+              <button 
+                type="button"
+                onClick={handlePrev}
+                className="px-5 py-2 bg-white/10 hover:bg-orange-500 rounded-full text-sm font-semibold text-white transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+              <span className="text-xs font-mono font-bold text-gray-400 tracking-widest">
+                {activeImage + 1} / {images.length}
+              </span>
+              <button 
+                type="button"
+                onClick={handleNext}
+                className="px-5 py-2 bg-white/10 hover:bg-orange-500 rounded-full text-sm font-semibold text-white transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
-};
+};
