@@ -3,6 +3,7 @@ import { TopProjects } from '../Components/TopProjects'
 import { SkillsSection } from '../Components/SkillsSection'
 import { TestimonialsSection } from '../Components/TestimonialsSection'
 import { Contact } from './Contact'
+import { Quote } from '../Components/Quote'
 
 export const Home = () => {
   const vantaRef = useRef(null)
@@ -223,6 +224,7 @@ export const Home = () => {
 
       <TopProjects />
       <SkillsSection />
+      <Quote />
       <TestimonialsSection />
       <Contact />
     </>
