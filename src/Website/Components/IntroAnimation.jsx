@@ -5,6 +5,7 @@ const IntroAnimation = ({ children }) => {
   const container = useRef(null);
   const cursorDotRef = useRef(null);
   const cursorRingRef = useRef(null);
+  const cursorTextRef = useRef(null);
   const [introFinished, setIntroFinished] = useState(false);
 
   useEffect(() => {
@@ -15,135 +16,165 @@ const IntroAnimation = ({ children }) => {
     document.head.appendChild(link);
 
     let ctx = gsap.context(() => {
-      // Set initial cursor states so they are instantly visible
-      if (cursorDotRef.current && cursorRingRef.current) {
-        gsap.set([cursorDotRef.current, cursorRingRef.current], { 
-          xPercent: -50, 
-          yPercent: -50,
-          opacity: 1 
-        });
-      }
+      // 1. Initial Position Setup
+      gsap.set([cursorDotRef.current, cursorRingRef.current], { 
+        xPercent: -50, 
+        yPercent: -50,
+        opacity: 1 
+      });
 
-      // 1. Intro Timeline setup (Total time ~4.0 seconds)
+      // Physics & Velocity State Tracking
+      const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      const mouse = { x: pos.x, y: pos.y };
+      let isHovered = false;
+
+      // Ultra Fast GSAP QuickSetters
+      const setXDot = gsap.quickSetter(cursorDotRef.current, "x", "px");
+      const setYDot = gsap.quickSetter(cursorDotRef.current, "y", "px");
+
+      const setXRing = gsap.quickSetter(cursorRingRef.current, "x", "px");
+      const setYRing = gsap.quickSetter(cursorRingRef.current, "y", "px");
+      const setRotRing = gsap.quickSetter(cursorRingRef.current, "rotation", "deg");
+      const setScaleXRing = gsap.quickSetter(cursorRingRef.current, "scaleX");
+      const setScaleYRing = gsap.quickSetter(cursorRingRef.current, "scaleY");
+
+      // 2. Intro Animation Timeline
       const introTL = gsap.timeline({
         paused: true,
-        onComplete: () => {
-          setIntroFinished(true);
-        }
+        onComplete: () => setIntroFinished(true)
       });
 
-      // Font Cycle Animation (~2.7s)
       const fonts = ["Anton", "Jost", "Alkatra", "Nova Oval", "Oswald", "PT Serif", "Lexend", "Poppins", "Titillium Web"];
       fonts.forEach((font) => {
-        introTL.to(".intro-text", { 
-          duration: 0.3, 
-          fontFamily: font, 
-          ease: "none" 
-        });
+        introTL.to(".intro-text", { duration: 0.3, fontFamily: font, ease: "none" });
       });
 
-      // Reveal Outro Curtain (Completes at 4.0s)
-      introTL.to(".intro-text", {
-        duration: 0.3,
-        scale: 0.8,
-        opacity: 0,
-        ease: "power2.in"
-      })
-      .to(".intro-bg", { 
-        duration: 0.8, 
-        scaleY: 0, 
-        ease: "expo.inOut" 
-      }, "-=0.1")
-      .to(".intro__red", { 
-        duration: 0.8, 
-        scaleY: 0, 
-        ease: "expo.inOut" 
-      }, "-=0.7")
-      .fromTo(".main-content-wrapper", 
-        { opacity: 0, y: 30 }, 
-        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }, 
-        "-=0.4"
-      );
+      introTL.to(".intro-text", { duration: 0.3, scale: 0.8, opacity: 0, ease: "power2.in" })
+        .to(".intro-bg", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.1")
+        .to(".intro__red", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.7")
+        .fromTo(".main-content-wrapper", 
+          { opacity: 0, y: 30 }, 
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }, 
+          "-=0.4"
+        );
 
-      const startAnimation = () => {
-        introTL.play();
-      };
+      const startAnimation = () => introTL.play();
+      if (document.readyState === 'complete') startAnimation();
+      else window.addEventListener('load', startAnimation);
 
-      if (document.readyState === 'complete') {
-        startAnimation();
-      } else {
-        window.addEventListener('load', startAnimation);
-      }
-
-      // 2. Custom Cursor Movement Physics
+      // 3. Mouse Coordinates Capture
       const handleMouseMove = (e) => {
-        const { clientX: x, clientY: y } = e;
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
 
-        // Fast Dot Movement
-        gsap.to(cursorDotRef.current, {
-          x,
-          y,
-          duration: 0.1,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-
-        // Smooth Ring Trailing
-        gsap.to(cursorRingRef.current, {
-          x,
-          y,
-          duration: 0.35,
-          ease: "power3.out",
-          overwrite: "auto"
-        });
+        // Instant Core Dot Tracking
+        setXDot(mouse.x);
+        setYDot(mouse.y);
       };
 
-      // Interactive Hover Effects
+      // 4. Kinetic Velocity & Inertia Ticker Engine
+      const renderPhysics = () => {
+        // Smooth Inertia Lerp
+        const dt = 0.15;
+        const dx = mouse.x - pos.x;
+        const dy = mouse.y - pos.y;
+
+        pos.x += dx * dt;
+        pos.y += dy * dt;
+
+        setXRing(pos.x);
+        setYRing(pos.y);
+
+        // Velocity Stretch Calculations (Only when not hovering interactive elements)
+        if (!isHovered) {
+          const vx = dx * dt;
+          const vy = dy * dt;
+          const velocity = Math.sqrt(vx * vx + vy * vy);
+          const angle = Math.atan2(vy, vx) * (180 / Math.PI);
+
+          const stretch = Math.min(velocity * 0.045, 0.85);
+          const scaleX = 1 + stretch;
+          const scaleY = Math.max(1 - stretch * 0.6, 0.45);
+
+          setRotRing(angle);
+          setScaleXRing(scaleX);
+          setScaleYRing(scaleY);
+        }
+      };
+
+      gsap.ticker.add(renderPhysics);
+
+      // 5. Interactive Magnetic Hover Morphing
       const handleMouseOver = (e) => {
         const target = e.target;
         if (target.closest('a, button, input, textarea, select, .clickable')) {
+          isHovered = true;
+
+          // Expand into Glassmorphic Interactive Badge
           gsap.to(cursorRingRef.current, {
-            scale: 2,
+            rotation: 0,
+            scaleX: 1.6,
+            scaleY: 1.6,
+            borderRadius: "16px",
             backgroundColor: "rgba(249, 115, 22, 0.2)",
             borderColor: "#f97316",
-            duration: 0.25,
-            ease: "power2.out"
+            backdropFilter: "blur(6px)",
+            duration: 0.35,
+            ease: "back.out(1.7)"
           });
-          gsap.to(cursorDotRef.current, {
-            scale: 1.5,
-            backgroundColor: "#f97316",
-            duration: 0.25
-          });
+
+          // Hide Inner Dot & Reveal Badge Text
+          gsap.to(cursorDotRef.current, { scale: 0, opacity: 0, duration: 0.2 });
+          gsap.to(cursorTextRef.current, { opacity: 1, scale: 1, duration: 0.25 });
         }
       };
 
       const handleMouseOut = (e) => {
         const target = e.target;
         if (target.closest('a, button, input, textarea, select, .clickable')) {
+          isHovered = false;
+
           gsap.to(cursorRingRef.current, {
-            scale: 1,
-            backgroundColor: "transparent",
-            borderColor: "#f97316",
-            duration: 0.25,
+            scaleX: 1,
+            scaleY: 1,
+            borderRadius: "9999px",
+            backgroundColor: "rgba(249, 115, 22, 0.03)",
+            borderColor: "rgba(249, 115, 22, 0.6)",
+            backdropFilter: "blur(0px)",
+            duration: 0.3,
             ease: "power2.out"
           });
-          gsap.to(cursorDotRef.current, {
-            scale: 1,
-            backgroundColor: "#f97316",
-            duration: 0.25
-          });
+
+          gsap.to(cursorDotRef.current, { scale: 1, opacity: 1, duration: 0.25 });
+          gsap.to(cursorTextRef.current, { opacity: 0, scale: 0.5, duration: 0.15 });
         }
+      };
+
+      // Mouse Down / Up Bounce Elastic Physics
+      const handleMouseDown = () => {
+        gsap.to(cursorRingRef.current, { scale: 0.6, duration: 0.15 });
+        gsap.to(cursorDotRef.current, { scale: 1.8, duration: 0.15 });
+      };
+
+      const handleMouseUp = () => {
+        gsap.to(cursorRingRef.current, { scale: 1, duration: 0.4, ease: "elastic.out(1.2, 0.4)" });
+        gsap.to(cursorDotRef.current, { scale: 1, duration: 0.25 });
       };
 
       window.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseover", handleMouseOver);
       document.addEventListener("mouseout", handleMouseOut);
+      window.addEventListener("mousedown", handleMouseDown);
+      window.addEventListener("mouseup", handleMouseUp);
 
       return () => {
+        gsap.ticker.remove(renderPhysics);
         window.removeEventListener('load', startAnimation);
         window.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseover", handleMouseOver);
         document.removeEventListener("mouseout", handleMouseOut);
+        window.removeEventListener("mousedown", handleMouseDown);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }, container);
 
@@ -190,19 +221,27 @@ const IntroAnimation = ({ children }) => {
         {children}
       </div>
 
-      {/* Custom Cursor Markup */}
-      <div className="hidden lg:block pointer-events-none">
-        {/* Inner Precision Dot */}
+      {/* Unique Kinetic Fluid Custom Cursor */}
+      <div className="hidden lg:block pointer-events-none select-none">
+        {/* Core Laser Pointer Dot */}
         <div 
           ref={cursorDotRef}
-          className="fixed top-0 left-0 w-3 h-3 bg-orange-500 rounded-full z-[10001] pointer-events-none shadow-[0_0_10px_#f97316]"
+          className="fixed top-0 left-0 w-3 h-3 bg-orange-500 rounded-full z-[10002] pointer-events-none shadow-[0_0_10px_#f97316]"
         />
 
-        {/* Outer Trailing Ring */}
+        {/* Velocity Liquid Stretch & Dynamic Glass Badge Ring */}
         <div 
           ref={cursorRingRef}
-          className="fixed top-0 left-0 w-10 h-10 border-2 border-orange-500 rounded-full z-[10000] pointer-events-none transition-colors duration-150"
-        />
+          className="fixed top-0 left-0 w-12 h-12 rounded-full z-[10000] pointer-events-none border-2 border-orange-500/60 bg-orange-500/[0.03] flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.15)] origin-center"
+        >
+          {/* Subtle Hover Action Icon/Text */}
+          <span 
+            ref={cursorTextRef} 
+            className="opacity-0 scale-50 text-[10px] font-extrabold text-orange-400 uppercase tracking-widest pointer-events-none"
+          >
+            ✦
+          </span>
+        </div>
       </div>
 
     </div>
