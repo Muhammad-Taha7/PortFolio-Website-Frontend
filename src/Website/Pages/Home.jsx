@@ -10,7 +10,7 @@ export const Home = () => {
   const [vantaEffect, setVantaEffect] = useState(null)
   
   // Profile image & Dual Loading States
-  const [profileImage, setProfileImage] = useState('')
+  const [profileImage, setProfileImage] = useState('https://avatars.githubusercontent.com/u/189430986?v=4')
   const [loadingApi, setLoadingApi] = useState(true)
   const [isImgLoaded, setIsImgLoaded] = useState(false)
 
@@ -19,41 +19,37 @@ export const Home = () => {
 
   // 1. Database se Profile Image Fetch karne ka Effect
   useEffect(() => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    let isMounted = true;
 
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/public/profile`, {
-          signal: controller.signal
-        });
+        const response = await fetch(`${BACKEND_URL}/api/public/profile`);
         if (response.ok) {
           const data = await response.json();
-          if (data && data.profileImage) {
+          if (isMounted && data && data.profileImage) {
             setProfileImage(data.profileImage);
           }
         }
       } catch (error) {
-        // Fallback to local hero image on network error or timeout
+        console.error("Error fetching profile image:", error);
       } finally {
-        setLoadingApi(false);
+        if (isMounted) setLoadingApi(false);
       }
     };
 
     fetchProfileData();
 
     return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
+      isMounted = false;
     };
   }, [BACKEND_URL]);
 
   // Image Source Resolution
   const finalImageSrc = profileImage 
-    ? (profileImage.startsWith('http') 
+    ? (profileImage.startsWith('http') || profileImage.startsWith('data:')
         ? profileImage 
         : `${BACKEND_URL}${profileImage.startsWith('/') ? '' : '/'}${profileImage}`)
-    : "/hero-img.png";
+    : "https://avatars.githubusercontent.com/u/189430986?v=4";
 
   // 2. Vanta Background Effect Setup
   useEffect(() => {
@@ -159,7 +155,7 @@ export const Home = () => {
           onLoad={() => setIsImgLoaded && setIsImgLoaded(true)}
           onError={(e) => {
             e.currentTarget.onerror = null; 
-            e.currentTarget.src = "/hero-img.png"; 
+            e.currentTarget.src = "https://avatars.githubusercontent.com/u/189430986?v=4"; 
             if (setIsImgLoaded) setIsImgLoaded(true);
           }}
           className={`relative z-10 w-full h-full object-cover rounded-full border-2 border-white/10 shadow-2xl transition-all duration-700 ease-out ${

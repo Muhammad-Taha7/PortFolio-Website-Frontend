@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 export const About = () => {
-  const [profileImg, setProfileImg] = useState('');
+  const [profileImg, setProfileImg] = useState('https://avatars.githubusercontent.com/u/189430986?v=4');
   const [imgError, setImgError] = useState(false);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
