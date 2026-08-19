@@ -18,7 +18,7 @@ export const FloatingContact = () => {
         }
       `}</style>
 
-      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[9999] flex flex-col items-center gap-3 sm:gap-5">
+      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-30 flex flex-col items-center gap-3 sm:gap-5">
         {/* Floating Contact Options */}
         <div
           className={`flex flex-col gap-3 sm:gap-4 transition-all duration-300 ease-out origin-bottom ${

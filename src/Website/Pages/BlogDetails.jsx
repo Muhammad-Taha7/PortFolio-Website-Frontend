@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Clock, Tag, Share2, Check, 
-  Linkedin, Twitter, MessageCircle, Sparkles, BookOpen, User, Eye
+  MessageCircle, Sparkles, BookOpen, User, Eye
 } from 'lucide-react';
+import { FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 
 export const BlogDetails = () => {
   const { id } = useParams();
@@ -301,7 +302,7 @@ export const BlogDetails = () => {
                 className="p-2.5 rounded-xl bg-white/5 hover:bg-[#1DA1F2]/20 text-gray-300 hover:text-[#1DA1F2] border border-white/10 transition-all"
                 title="Share on Twitter / X"
               >
-                <Twitter className="w-4 h-4" />
+                <FaXTwitter className="w-4 h-4" />
               </a>
 
               <a
@@ -311,7 +312,7 @@ export const BlogDetails = () => {
                 className="p-2.5 rounded-xl bg-white/5 hover:bg-[#0A66C2]/20 text-gray-300 hover:text-[#0A66C2] border border-white/10 transition-all"
                 title="Share on LinkedIn"
               >
-                <Linkedin className="w-4 h-4" />
+                <FaLinkedin className="w-4 h-4" />
               </a>
             </div>
           </div>

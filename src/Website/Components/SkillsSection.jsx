@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import {
   SiHtml5,
-  SiCss3,
+  SiCss,
   SiJavascript,
   SiReact,
   SiTailwindcss,
@@ -25,7 +25,7 @@ const skillCategories = [
     category: 'Frontend Development',
     skills: [
       { name: 'HTML5', color: '#E34F26', icon: SiHtml5 },
-      { name: 'CSS3', color: '#1572B6', icon: SiCss3 },
+      { name: 'CSS3', color: '#1572B6', icon: SiCss },
       { name: 'JavaScript', color: '#F7DF1E', icon: SiJavascript },
       { name: 'React JS', color: '#61DAFB', icon: SiReact },
       { name: 'Tailwind CSS', color: '#06B6D4', icon: SiTailwindcss },
