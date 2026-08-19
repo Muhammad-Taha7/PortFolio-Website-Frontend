@@ -1,12 +1,33 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 
+function map(num, in_min, in_max, out_min, out_max) {
+  return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+}
+
 const IntroAnimation = ({ children }) => {
   const container = useRef(null);
-  const cursorDotRef = useRef(null);
-  const cursorRingRef = useRef(null);
-  const cursorTextRef = useRef(null);
-  const [introFinished, setIntroFinished] = useState(false);
+  const ghostRef = useRef(null);
+  const ghostEyesRef = useRef(null);
+  const ghostMouthRef = useRef(null);
+
+  // Check if intro has already been shown in this tab session
+  const [introFinished, setIntroFinished] = useState(() => {
+    try {
+      return sessionStorage.getItem('taha_portfolio_intro_seen') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const finishIntro = () => {
+    try {
+      sessionStorage.setItem('taha_portfolio_intro_seen', 'true');
+    } catch (e) {
+      // ignore
+    }
+    setIntroFinished(true);
+  };
 
   useEffect(() => {
     // Inject Fonts dynamically
@@ -16,165 +37,105 @@ const IntroAnimation = ({ children }) => {
     document.head.appendChild(link);
 
     let ctx = gsap.context(() => {
-      // 1. Initial Position Setup
-      gsap.set([cursorDotRef.current, cursorRingRef.current], { 
-        xPercent: -50, 
-        yPercent: -50,
-        opacity: 1 
-      });
+      // 1. Intro Animation Timeline (Only if not already finished)
+      if (!introFinished) {
+        const introTL = gsap.timeline({
+          paused: false,
+          onComplete: finishIntro
+        });
 
-      // Physics & Velocity State Tracking
-      const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-      const mouse = { x: pos.x, y: pos.y };
-      let isHovered = false;
+        const fonts = ["Anton", "Jost", "Alkatra", "Nova Oval", "Oswald", "PT Serif", "Lexend", "Poppins", "Titillium Web"];
+        fonts.forEach((font) => {
+          introTL.to(".intro-text", { duration: 0.28, fontFamily: font, ease: "none" });
+        });
 
-      // Ultra Fast GSAP QuickSetters
-      const setXDot = gsap.quickSetter(cursorDotRef.current, "x", "px");
-      const setYDot = gsap.quickSetter(cursorDotRef.current, "y", "px");
+        introTL.to(".intro-text", { duration: 0.3, scale: 0.85, opacity: 0, ease: "power2.in" })
+          .to(".intro-bg", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.1")
+          .to(".intro__accent", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.7")
+          .fromTo(".main-content-wrapper", 
+            { opacity: 0, y: 20 }, 
+            { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }, 
+            "-=0.4"
+          );
+      }
 
-      const setXRing = gsap.quickSetter(cursorRingRef.current, "x", "px");
-      const setYRing = gsap.quickSetter(cursorRingRef.current, "y", "px");
-      const setRotRing = gsap.quickSetter(cursorRingRef.current, "rotation", "deg");
-      const setScaleXRing = gsap.quickSetter(cursorRingRef.current, "scaleX");
-      const setScaleYRing = gsap.quickSetter(cursorRingRef.current, "scaleY");
+      // Hard safety fallback: Ensure intro ALWAYS dismisses at 3.8 seconds
+      const safetyTimeout = setTimeout(() => {
+        finishIntro();
+      }, 3800);
 
-      // 2. Intro Animation Timeline
-      const introTL = gsap.timeline({
-        paused: true,
-        onComplete: () => setIntroFinished(true)
-      });
+      // 2. Ghost Cursor Physics Follower Engine
+      const mouse = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2
+      };
+      let clicked = false;
+      const ghostPos = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2
+      };
 
-      const fonts = ["Anton", "Jost", "Alkatra", "Nova Oval", "Oswald", "PT Serif", "Lexend", "Poppins", "Titillium Web"];
-      fonts.forEach((font) => {
-        introTL.to(".intro-text", { duration: 0.3, fontFamily: font, ease: "none" });
-      });
-
-      introTL.to(".intro-text", { duration: 0.3, scale: 0.8, opacity: 0, ease: "power2.in" })
-        .to(".intro-bg", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.1")
-        .to(".intro__red", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.7")
-        .fromTo(".main-content-wrapper", 
-          { opacity: 0, y: 30 }, 
-          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }, 
-          "-=0.4"
-        );
-
-      const startAnimation = () => introTL.play();
-      if (document.readyState === 'complete') startAnimation();
-      else window.addEventListener('load', startAnimation);
-
-      // 3. Mouse Coordinates Capture
       const handleMouseMove = (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
-
-        // Instant Core Dot Tracking
-        setXDot(mouse.x);
-        setYDot(mouse.y);
       };
 
-      // 4. Kinetic Velocity & Inertia Ticker Engine
-      const renderPhysics = () => {
-        // Smooth Inertia Lerp
-        const dt = 0.15;
-        const dx = mouse.x - pos.x;
-        const dy = mouse.y - pos.y;
-
-        pos.x += dx * dt;
-        pos.y += dy * dt;
-
-        setXRing(pos.x);
-        setYRing(pos.y);
-
-        // Velocity Stretch Calculations (Only when not hovering interactive elements)
-        if (!isHovered) {
-          const vx = dx * dt;
-          const vy = dy * dt;
-          const velocity = Math.sqrt(vx * vx + vy * vy);
-          const angle = Math.atan2(vy, vx) * (180 / Math.PI);
-
-          const stretch = Math.min(velocity * 0.045, 0.85);
-          const scaleX = 1 + stretch;
-          const scaleY = Math.max(1 - stretch * 0.6, 0.45);
-
-          setRotRing(angle);
-          setScaleXRing(scaleX);
-          setScaleYRing(scaleY);
-        }
-      };
-
-      gsap.ticker.add(renderPhysics);
-
-      // 5. Interactive Magnetic Hover Morphing
-      const handleMouseOver = (e) => {
-        const target = e.target;
-        if (target.closest('a, button, input, textarea, select, .clickable')) {
-          isHovered = true;
-
-          // Expand into Glassmorphic Interactive Badge
-          gsap.to(cursorRingRef.current, {
-            rotation: 0,
-            scaleX: 1.6,
-            scaleY: 1.6,
-            borderRadius: "16px",
-            backgroundColor: "rgba(249, 115, 22, 0.2)",
-            borderColor: "#f97316",
-            backdropFilter: "blur(6px)",
-            duration: 0.35,
-            ease: "back.out(1.7)"
-          });
-
-          // Hide Inner Dot & Reveal Badge Text
-          gsap.to(cursorDotRef.current, { scale: 0, opacity: 0, duration: 0.2 });
-          gsap.to(cursorTextRef.current, { opacity: 1, scale: 1, duration: 0.25 });
-        }
-      };
-
-      const handleMouseOut = (e) => {
-        const target = e.target;
-        if (target.closest('a, button, input, textarea, select, .clickable')) {
-          isHovered = false;
-
-          gsap.to(cursorRingRef.current, {
-            scaleX: 1,
-            scaleY: 1,
-            borderRadius: "9999px",
-            backgroundColor: "rgba(249, 115, 22, 0.03)",
-            borderColor: "rgba(249, 115, 22, 0.6)",
-            backdropFilter: "blur(0px)",
-            duration: 0.3,
-            ease: "power2.out"
-          });
-
-          gsap.to(cursorDotRef.current, { scale: 1, opacity: 1, duration: 0.25 });
-          gsap.to(cursorTextRef.current, { opacity: 0, scale: 0.5, duration: 0.15 });
-        }
-      };
-
-      // Mouse Down / Up Bounce Elastic Physics
       const handleMouseDown = () => {
-        gsap.to(cursorRingRef.current, { scale: 0.6, duration: 0.15 });
-        gsap.to(cursorDotRef.current, { scale: 1.8, duration: 0.15 });
+        clicked = true;
       };
 
       const handleMouseUp = () => {
-        gsap.to(cursorRingRef.current, { scale: 1, duration: 0.4, ease: "elastic.out(1.2, 0.4)" });
-        gsap.to(cursorDotRef.current, { scale: 1, duration: 0.25 });
+        clicked = false;
       };
 
-      window.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseover", handleMouseOver);
-      document.addEventListener("mouseout", handleMouseOut);
-      window.addEventListener("mousedown", handleMouseDown);
-      window.addEventListener("mouseup", handleMouseUp);
+      let rafId;
+      const renderGhost = () => {
+        if (ghostRef.current && ghostEyesRef.current && ghostMouthRef.current) {
+          const targetX = mouse.x + 18;
+          const targetY = mouse.y + 18;
+          const distX = targetX - ghostPos.x;
+          const distY = targetY - ghostPos.y;
+
+          const velX = distX / 8;
+          const velY = distY / 8;
+
+          ghostPos.x += distX / 10;
+          ghostPos.y += distY / 10;
+
+          const skewX = map(velX, 0, 100, 0, -50);
+          const scaleY = map(velY, 0, 100, 1, 2.0);
+          let scaleEyeX = map(Math.abs(velX), 0, 100, 1, 1.2);
+          let scaleEyeY = map(Math.abs(velX * 2), 0, 100, 1, 0.1);
+          let scaleMouth = Math.min(
+            Math.max(map(Math.abs(velX * 1.5), 0, 100, 0, 10), map(Math.abs(velY * 1.2), 0, 100, 0, 5)),
+            2
+          );
+
+          if (clicked) {
+            scaleEyeY = 0.4;
+            scaleMouth = -scaleMouth;
+          }
+
+          ghostRef.current.style.transform = `translate(${ghostPos.x}px, ${ghostPos.y}px) scale(.65) skew(${skewX}deg) rotate(${-skewX}deg) scaleY(${scaleY})`;
+          ghostEyesRef.current.style.transform = `translateX(-50%) scale(${scaleEyeX}, ${scaleEyeY})`;
+          ghostMouthRef.current.style.transform = `translate(${-skewX * 0.5 - 10}px) scale(${scaleMouth})`;
+        }
+
+        rafId = requestAnimationFrame(renderGhost);
+      };
+
+      rafId = requestAnimationFrame(renderGhost);
+
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mouseup', handleMouseUp);
 
       return () => {
-        gsap.ticker.remove(renderPhysics);
-        window.removeEventListener('load', startAnimation);
-        window.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseover", handleMouseOver);
-        document.removeEventListener("mouseout", handleMouseOut);
-        window.removeEventListener("mousedown", handleMouseDown);
-        window.removeEventListener("mouseup", handleMouseUp);
+        clearTimeout(safetyTimeout);
+        if (rafId) cancelAnimationFrame(rafId);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mouseup', handleMouseUp);
       };
     }, container);
 
@@ -199,53 +160,96 @@ const IntroAnimation = ({ children }) => {
       if (lenisInstance) lenisInstance.destroy();
       if (document.head.contains(link)) document.head.removeChild(link);
     };
-  }, []);
+  }, [introFinished]);
 
   return (
-    <div ref={container} className={`relative w-full min-h-screen lg:cursor-none ${!introFinished ? 'overflow-hidden h-screen' : ''}`}>
+    <div ref={container} className={`relative w-full min-h-screen ${!introFinished ? 'overflow-hidden h-screen' : ''}`}>
       
-      {/* Intro Overlay */}
+      {/* Light Theme Intro Overlay */}
       {!introFinished && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none">
-          <div className="intro__red absolute inset-0 bg-red-600 origin-top transform"></div>
-          <div className="intro-bg absolute inset-0 bg-[#0f172a] flex items-center justify-center origin-bottom transform">
-            <span className="intro-text text-[9vw] text-white font-bold uppercase tracking-wider select-none">
+        <div className="fixed inset-0 z-[9999] select-none">
+          {/* Secondary Accent Curtain */}
+          <div className="intro__accent absolute inset-0 bg-gradient-to-b from-amber-200 via-orange-300 to-amber-400 origin-top transform"></div>
+          
+          {/* Main Light Background Layer */}
+          <div className="intro-bg absolute inset-0 bg-[#f8fafc] flex flex-col items-center justify-center origin-bottom transform shadow-2xl">
+            
+            {/* Skip Button */}
+            <button
+              onClick={finishIntro}
+              className="absolute top-6 right-6 z-20 px-3 py-1.5 rounded-full bg-slate-900/10 hover:bg-slate-900/20 text-slate-700 text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer pointer-events-auto border border-slate-300"
+            >
+              Skip ✕
+            </button>
+
+            {/* Ambient soft glow */}
+            <div className="absolute w-[400px] h-[400px] bg-gradient-to-tr from-amber-400/20 via-orange-300/20 to-transparent rounded-full blur-[100px] pointer-events-none"></div>
+
+            {/* Main Animated Text */}
+            <span className="intro-text text-[9vw] text-[#0f172a] font-black uppercase tracking-wider select-none leading-none z-10 drop-shadow-sm">
               Loading
             </span>
+
+            {/* Smooth 3.5s animated progress bar */}
+            <div className="w-56 sm:w-72 h-1.5 bg-slate-200/80 rounded-full mt-7 overflow-hidden relative z-10 shadow-inner">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                style={{
+                  animation: 'loadingProgress 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+                }}
+              />
+            </div>
+
+            {/* Subtitle */}
+            <div className="flex items-center gap-2 mt-3.5 z-10">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+              <span className="text-xs font-mono font-bold tracking-[0.25em] text-slate-600 uppercase">
+                INITIALIZING PORTFOLIO
+              </span>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="main-content-wrapper w-full relative z-10 opacity-0">
+      {/* Main Content (Always visible once introFinished is true) */}
+      <div className={`main-content-wrapper w-full relative z-10 transition-opacity duration-500 ${introFinished ? 'opacity-100' : 'opacity-0'}`}>
         {children}
       </div>
 
-      {/* Unique Kinetic Fluid Custom Cursor */}
+      {/* === GHOST CUSTOM CURSOR (SVG Gooey Filter & Ghost Container) === */}
       <div className="hidden lg:block pointer-events-none select-none">
-        {/* Core Laser Pointer Dot */}
-        <div 
-          ref={cursorDotRef}
-          className="fixed top-0 left-0 w-3 h-3 bg-orange-500 rounded-full z-[10002] pointer-events-none shadow-[0_0_10px_#f97316]"
-        />
-
-        {/* Velocity Liquid Stretch & Dynamic Glass Badge Ring */}
-        <div 
-          ref={cursorRingRef}
-          className="fixed top-0 left-0 w-12 h-12 rounded-full z-[10000] pointer-events-none border-2 border-orange-500/60 bg-orange-500/[0.03] flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.15)] origin-center"
-        >
-          {/* Subtle Hover Action Icon/Text */}
-          <span 
-            ref={cursorTextRef} 
-            className="opacity-0 scale-50 text-[10px] font-extrabold text-orange-400 uppercase tracking-widest pointer-events-none"
-          >
-            ✦
-          </span>
+        <div id="ghost" ref={ghostRef} className="ghost">
+          <div className="ghost__head">
+            <div ref={ghostEyesRef} className="ghost__eyes"></div>
+            <div ref={ghostMouthRef} className="ghost__mouth"></div>
+          </div>
+          <div className="ghost__tail">
+            <div className="ghost__rip"></div>
+          </div>
         </div>
+
+        {/* SVG Gooey Filter */}
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" className="fixed w-0 h-0 pointer-events-none opacity-0">
+          <defs>
+            <filter id="goo">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="ghost-blur" />
+              <feColorMatrix
+                in="ghost-blur"
+                mode="matrix"
+                values="
+                  1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 16 -7"
+                result="ghost-gooey"
+              />
+            </filter>
+          </defs>
+        </svg>
       </div>
 
     </div>
   );
 };
 
-export default IntroAnimation;
+export default IntroAnimation;

@@ -17,6 +17,7 @@ import IntroAnimation from './Website/Components/IntroAnimation.jsx';
 import { WebsiteNavbar } from './Website/Components/WebsiteNavbar.jsx';
 import { WebsiteFooter } from './Website/Components/WebsiteFooter.jsx';
 import { ProjectDetails } from './Website/Pages/ProjectDetails.jsx';
+import { BlogDetails } from './Website/Pages/BlogDetails.jsx';
 import { FloatingContact } from './Website/Components/FloatingContact.jsx';
 
 const WebsiteLayout = () => {
@@ -140,6 +141,7 @@ export const App = () => {
         <Route path="/Blogs" element={<Blogs />} />
         <Route path="/Testimonials" element={<Testimonials />} />
         <Route path="/project/:id" element={<ProjectDetails />} />
+        <Route path="/blog/:id" element={<BlogDetails />} />
       </Route>
 
       {/* Sign In Route - No Navbar/Footer */}

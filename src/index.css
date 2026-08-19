@@ -66,6 +66,13 @@ html {
   }
 }
 
+@keyframes loadingProgress {
+  0% { width: 0%; }
+  30% { width: 45%; }
+  70% { width: 85%; }
+  100% { width: 100%; }
+}
+
 /* Subtle float animation */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -101,4 +108,315 @@ html, body {
   --border-color: #1e293b;
 }
 
+/* ========================== */
+/* GHOST CUSTOM CURSOR        */
+/* ========================== */
+.ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  pointer-events: none;
+  transform-origin: center;
+  width: 90px;
+  margin: -45px 0 0 -45px;
+  will-change: transform;
+}
 
+.ghost__eyes,
+.ghost__mouth {
+  position: absolute;
+  z-index: 1;
+  width: 15px;
+  height: 15px;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50px;
+  background: #161616;
+  margin-left: -20px;
+  transform-origin: center;
+}
+
+.ghost__eyes {
+  box-shadow: 40px 0 0 #161616;
+}
+
+.ghost__mouth {
+  margin: 0;
+  top: 60px;
+  transform: scale(0);
+  border-radius: 20px 20px 12px 12px;
+  width: 20px;
+  transform-origin: center bottom;
+  overflow: hidden;
+}
+
+.ghost__tail {
+  position: absolute;
+  z-index: -1;
+  top: 82px;
+  height: 55px;
+  width: 100%;
+  filter: url(#goo);
+}
+
+.ghost__tail:before {
+  content: '';
+  background: #ffffff;
+  position: absolute;
+  bottom: 35px;
+  left: 0;
+  height: 100px;
+  width: 100%;
+  border-radius: 40px 40px 5px 5px;
+}
+
+.ghost__rip {
+  width: 15px;
+  height: 28px;
+  background: #ffffff;
+  position: absolute;
+  top: 15px;
+  left: 0;
+  box-shadow: -62px 0 0 #ffffff, -31px 0 0 #ffffff, 31px 0 0 #ffffff, 62px 0 0 #ffffff, 93px 0 0 #ffffff;
+  border-radius: 50%;
+  animation: ghost-rips 1.2s linear infinite;
+}
+
+@keyframes ghost-rips {
+  0% {
+    left: 0;
+    top: 12px;
+  }
+  50% {
+    left: 31px;
+    top: 20px;
+  }
+  100% {
+    left: 62px;
+    top: 12px;
+  }
+}
+
+/* ========================== */
+/* JERRY CHARACTER ANIMATIONS */
+/* ========================== */
+
+/* Running Body Bounce */
+.jerry-running {
+  animation: jerry-bounce 0.4s ease-in-out infinite;
+}
+
+@keyframes jerry-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Leg Running Cycle */
+.jerry-running .jerry-left-leg {
+  animation: jerry-leg-left 0.35s ease-in-out infinite;
+  transform-origin: 44px 80px;
+}
+.jerry-running .jerry-right-leg {
+  animation: jerry-leg-right 0.35s ease-in-out infinite;
+  transform-origin: 66px 80px;
+}
+
+@keyframes jerry-leg-left {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
+}
+@keyframes jerry-leg-right {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+/* Arm Swing */
+.jerry-running .jerry-left-arm {
+  animation: jerry-arm-left 0.35s ease-in-out infinite;
+  transform-origin: 36px 52px;
+}
+.jerry-running .jerry-right-arm {
+  animation: jerry-arm-right 0.35s ease-in-out infinite;
+  transform-origin: 74px 52px;
+}
+
+@keyframes jerry-arm-left {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(-10deg); }
+}
+@keyframes jerry-arm-right {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+
+/* Tail Wag */
+.jerry-running .jerry-tail {
+  animation: jerry-tail-wag 0.6s ease-in-out infinite;
+  transform-origin: 33px 70px;
+}
+
+@keyframes jerry-tail-wag {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* Cheese Trail Particles */
+.cheese-particle {
+  position: absolute;
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  animation: cheese-float 2s ease-out infinite;
+}
+.cheese-particle:nth-child(1) { animation-delay: 0s; left: -5px; }
+.cheese-particle:nth-child(2) { animation-delay: 0.6s; left: -12px; }
+.cheese-particle:nth-child(3) { animation-delay: 1.2s; left: -20px; }
+
+@keyframes cheese-float {
+  0% { opacity: 0.9; transform: translateY(0) scale(1); }
+  50% { opacity: 0.5; transform: translateY(-15px) scale(0.8); }
+  100% { opacity: 0; transform: translateY(-30px) scale(0.3); }
+}
+
+/* === HERO — Jerry Coding Animation === */
+.jerry-coding .jerry-typing-left {
+  animation: jerry-type-left 0.5s ease-in-out infinite;
+  transform-origin: 182px 98px;
+}
+.jerry-coding .jerry-typing-right {
+  animation: jerry-type-right 0.5s ease-in-out infinite 0.25s;
+  transform-origin: 182px 100px;
+}
+
+@keyframes jerry-type-left {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes jerry-type-right {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.jerry-coding .jerry-head-coding {
+  animation: jerry-head-bob 3s ease-in-out infinite;
+  transform-origin: 200px 72px;
+}
+
+@keyframes jerry-head-bob {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+.jerry-coding .jerry-tail-coding {
+  animation: jerry-tail-code 2s ease-in-out infinite;
+  transform-origin: 220px 110px;
+}
+
+@keyframes jerry-tail-code {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-8deg); }
+  70% { transform: rotate(8deg); }
+}
+
+.jerry-coding .code-line-1 { animation: code-type 3s ease-out infinite 0s; }
+.jerry-coding .code-line-2 { animation: code-type 3s ease-out infinite 0.3s; }
+.jerry-coding .code-line-3 { animation: code-type 3s ease-out infinite 0.6s; }
+.jerry-coding .code-line-4 { animation: code-type 3s ease-out infinite 0.9s; }
+.jerry-coding .code-line-5 { animation: code-type 3s ease-out infinite 1.2s; }
+.jerry-coding .code-line-6 { animation: code-type 3s ease-out infinite 1.5s; }
+.jerry-coding .code-line-7 { animation: code-type 3s ease-out infinite 1.8s; }
+.jerry-coding .code-line-8 { animation: code-type 3s ease-out infinite 2.1s; }
+.jerry-coding .code-line-9 { animation: code-type 3s ease-out infinite 2.4s; }
+
+@keyframes code-type {
+  0% { width: 0; opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.jerry-coding .coffee-steam-1 {
+  animation: steam-rise 2.5s ease-out infinite;
+}
+.jerry-coding .coffee-steam-2 {
+  animation: steam-rise 2.5s ease-out infinite 0.8s;
+}
+
+@keyframes steam-rise {
+  0% { opacity: 0; transform: translateY(0); }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-12px); }
+}
+
+.jerry-coding .cheese-on-desk {
+  animation: cheese-glow 3s ease-in-out infinite;
+}
+
+@keyframes cheese-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.3)); }
+  50% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.7)); }
+}
+
+.jerry-hero-wrapper {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 5;
+  animation: jerry-slide-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+@keyframes jerry-slide-in {
+  0% { opacity: 0; transform: translateX(-100px) scale(0.8); }
+  60% { opacity: 1; transform: translateX(10px) scale(1.02); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.jerry-hero-float {
+  animation: jerry-float-bob 4s ease-in-out infinite 1.5s;
+}
+
+@keyframes jerry-float-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.jerry-speech-bubble {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 10px;
+  color: #fbbf24;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: speech-fade 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.jerry-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(249, 115, 22, 0.3);
+}
+
+@keyframes speech-fade {
+  0%, 20% { opacity: 0; transform: translateX(-50%) translateY(5px); }
+  30%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90%, 100% { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+}

@@ -19,9 +19,14 @@ export const Home = () => {
 
   // 1. Database se Profile Image Fetch karne ka Effect
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/public/profile`);
+        const response = await fetch(`${BACKEND_URL}/api/public/profile`, {
+          signal: controller.signal
+        });
         if (response.ok) {
           const data = await response.json();
           if (data && data.profileImage) {
@@ -29,13 +34,18 @@ export const Home = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching profile image:", error.message);
+        // Fallback to local hero image on network error or timeout
       } finally {
         setLoadingApi(false);
       }
     };
 
     fetchProfileData();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [BACKEND_URL]);
 
   // Image Source Resolution
