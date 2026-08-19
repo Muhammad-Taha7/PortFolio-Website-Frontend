@@ -11,58 +11,119 @@ const IntroAnimation = ({ children }) => {
   const ghostEyesRef = useRef(null);
   const ghostMouthRef = useRef(null);
 
-  // Check if intro has already been shown in this tab session
-  const [introFinished, setIntroFinished] = useState(() => {
-    try {
-      return sessionStorage.getItem('taha_portfolio_intro_seen') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [counter, setCounter] = useState(0);
+  const [statusText, setStatusText] = useState('INITIALIZING ENVIRONMENT...');
+
+  // Always start with false so animation triggers on every full page refresh
+  const [introFinished, setIntroFinished] = useState(false);
 
   const finishIntro = () => {
-    try {
-      sessionStorage.setItem('taha_portfolio_intro_seen', 'true');
-    } catch (e) {
-      // ignore
-    }
     setIntroFinished(true);
   };
 
   useEffect(() => {
-    // Inject Fonts dynamically
+    // Inject Fonts dynamically for typography morphing
     const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Alkatra&family=Anton&family=Jost&family=Lexend&family=Nova+Oval&family=Oswald&family=PT+Serif&family=Poppins&family=Titillium+Web&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700;900&family=Syne:wght@700;800&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@700;900&family=Cinzel:wght@700;900&display=swap';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 
     let ctx = gsap.context(() => {
-      // 1. Intro Animation Timeline (Only if not already finished)
+      // 1. Intro Animation Timeline (Scaled to 7.0s Complete Total Duration)
       if (!introFinished) {
+        const countObj = { val: 0 };
+        gsap.to(countObj, {
+          val: 100,
+          duration: 6.0,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            const currentVal = Math.floor(countObj.val);
+            setCounter(currentVal);
+            if (currentVal < 25) {
+              setStatusText('INITIALIZING CORE MODULES...');
+            } else if (currentVal < 55) {
+              setStatusText('COMPILING CREATIVE ASSETS...');
+            } else if (currentVal < 85) {
+              setStatusText('RENDERING VISUAL INTERFACE...');
+            } else {
+              setStatusText('WELCOME TO THE EXPERIENCE');
+            }
+          }
+        });
+
         const introTL = gsap.timeline({
           paused: false,
           onComplete: finishIntro
         });
 
-        const fonts = ["Anton", "Jost", "Alkatra", "Nova Oval", "Oswald", "PT Serif", "Lexend", "Poppins", "Titillium Web"];
-        fonts.forEach((font) => {
-          introTL.to(".intro-text", { duration: 0.28, fontFamily: font, ease: "none" });
+        const dynamicFonts = [
+          "'Space Grotesk', sans-serif", 
+          "'Syne', sans-serif", 
+          "'Cinzel', serif", 
+          "'Outfit', sans-serif", 
+          "'Anton', sans-serif", 
+          "'JetBrains Mono', monospace"
+        ];
+        dynamicFonts.forEach((font, idx) => {
+          introTL.to(".intro-brand-name", { 
+            duration: 1.0, 
+            fontFamily: font, 
+            ease: "none" 
+          }, idx * 1.0);
         });
 
-        introTL.to(".intro-text", { duration: 0.3, scale: 0.85, opacity: 0, ease: "power2.in" })
-          .to(".intro-bg", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.1")
-          .to(".intro__accent", { duration: 0.8, scaleY: 0, ease: "expo.inOut" }, "-=0.7")
-          .fromTo(".main-content-wrapper", 
-            { opacity: 0, y: 20 }, 
-            { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "transform" }, 
-            "-=0.4"
-          );
+        introTL.to(".intro-progress-bar", {
+          width: "100%",
+          duration: 6.0,
+          ease: "power2.inOut"
+        }, 0);
+
+        introTL.to(".intro-center-hub", {
+          scale: 1.06,
+          opacity: 1,
+          filter: "drop-shadow(0 0 35px rgba(255, 107, 0, 0.9))",
+          duration: 0.3,
+          ease: "power1.out"
+        }, 6.0);
+
+        introTL.to(".intro-elements", {
+          opacity: 0,
+          scale: 0.92,
+          y: -15,
+          duration: 0.3,
+          ease: "power2.in"
+        }, 6.2);
+
+        introTL.to(".intro-shutter-top", {
+          yPercent: -100,
+          duration: 0.7,
+          ease: "power4.inOut"
+        }, 6.3);
+
+        introTL.to(".intro-shutter-bottom", {
+          yPercent: 100,
+          duration: 0.7,
+          ease: "power4.inOut"
+        }, 6.3);
+
+        introTL.to(".intro-laser-line", {
+          scaleX: 1.5,
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.out"
+        }, 6.2);
+
+        introTL.fromTo(".main-content-wrapper", 
+          { opacity: 0, scale: 0.98 }, 
+          { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out", clearProps: "transform" }, 
+          6.4
+        );
       }
 
-      // Hard safety fallback: Ensure intro ALWAYS dismisses at 3.8 seconds
+      // Safety fallback: Ensure intro dismisses at 7.1 seconds
       const safetyTimeout = setTimeout(() => {
         finishIntro();
-      }, 3800);
+      }, 7100);
 
       // 2. Ghost Cursor Physics Follower Engine
       const mouse = {
@@ -160,63 +221,94 @@ const IntroAnimation = ({ children }) => {
       if (lenisInstance) lenisInstance.destroy();
       if (document.head.contains(link)) document.head.removeChild(link);
     };
-  }, [introFinished]);
+  }, []);
 
   return (
-    <div ref={container} className={`relative w-full min-h-screen ${!introFinished ? 'overflow-hidden h-screen' : ''}`}>
+    <div ref={container} className={`relative w-full min-h-screen bg-[#070709] ${!introFinished ? 'overflow-hidden h-screen' : ''}`}>
       
-      {/* Light Theme Intro Overlay */}
       {!introFinished && (
-        <div className="fixed inset-0 z-[9999] select-none">
-          {/* Secondary Accent Curtain */}
-          <div className="intro__accent absolute inset-0 bg-gradient-to-b from-amber-200 via-orange-300 to-amber-400 origin-top transform"></div>
+        <div className="fixed inset-0 z-[99999] select-none pointer-events-auto overflow-hidden bg-[#070709]">
           
-          {/* Main Light Background Layer */}
-          <div className="intro-bg absolute inset-0 bg-[#f8fafc] flex flex-col items-center justify-center origin-bottom transform shadow-2xl">
-            
-            {/* Skip Button */}
-            <button
-              onClick={finishIntro}
-              className="absolute top-6 right-6 z-20 px-3 py-1.5 rounded-full bg-slate-900/10 hover:bg-slate-900/20 text-slate-700 text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer pointer-events-auto border border-slate-300"
-            >
-              Skip ✕
-            </button>
+          <div 
+            className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(249,115,22,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.08) 1px, transparent 1px)',
+              backgroundSize: '48px 48px'
+            }}
+          />
 
-            {/* Ambient soft glow */}
-            <div className="absolute w-[400px] h-[400px] bg-gradient-to-tr from-amber-400/20 via-orange-300/20 to-transparent rounded-full blur-[100px] pointer-events-none"></div>
-
-            {/* Main Animated Text */}
-            <span className="intro-text text-[9vw] text-[#0f172a] font-black uppercase tracking-wider select-none leading-none z-10 drop-shadow-sm">
-              Loading
-            </span>
-
-            {/* Smooth 3.5s animated progress bar */}
-            <div className="w-56 sm:w-72 h-1.5 bg-slate-200/80 rounded-full mt-7 overflow-hidden relative z-10 shadow-inner">
-              <div 
-                className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"
-                style={{
-                  animation: 'loadingProgress 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards'
-                }}
-              />
-            </div>
-
-            {/* Subtitle */}
-            <div className="flex items-center gap-2 mt-3.5 z-10">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-              <span className="text-xs font-mono font-bold tracking-[0.25em] text-slate-600 uppercase">
-                INITIALIZING PORTFOLIO
-              </span>
-            </div>
+          <div className="intro-shutter-top absolute top-0 left-0 w-full h-1/2 bg-[#070709] z-20 border-b border-orange-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.9)] origin-top transform will-change-transform flex items-end justify-center overflow-hidden">
+            <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-orange-600/15 via-orange-500/5 to-transparent rounded-full blur-[110px] pointer-events-none"></div>
           </div>
+
+          <div className="intro-shutter-bottom absolute bottom-0 left-0 w-full h-1/2 bg-[#070709] z-20 border-t border-orange-500/20 shadow-[0_-10px_30px_rgba(0,0,0,0.9)] origin-bottom transform will-change-transform flex items-start justify-center overflow-hidden">
+            <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-t from-orange-600/15 via-amber-500/5 to-transparent rounded-full blur-[110px] pointer-events-none"></div>
+          </div>
+
+          <div className="intro-laser-line absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500 to-transparent z-30 shadow-[0_0_15px_#ff6b00,0_0_30px_#ff8c00] -translate-y-1/2 pointer-events-none"></div>
+
+          <div className="intro-elements absolute inset-0 z-40 flex flex-col items-center justify-between py-10 px-6 pointer-events-none">
+            
+            <div className="w-full max-w-5xl flex items-center justify-between text-xs font-mono tracking-widest text-neutral-400">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-2.5 w-2.5">
+                </span>
+              </div>
+             
+            </div>
+
+            <div className="intro-center-hub flex flex-col items-center justify-center text-center my-auto relative">
+              
+              <div className="absolute w-[350px] sm:w-[520px] h-[350px] sm:h-[520px] bg-gradient-to-tr from-orange-600/25 via-amber-500/20 to-orange-700/10 rounded-full blur-[90px] -z-10 animate-pulse pointer-events-none"></div>
+
+              <div className="relative mb-6 sm:mb-8 flex items-center justify-center">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-dashed border-orange-500/40 animate-[spin_12s_linear_infinite]"></div>
+                <div className="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-orange-500/20 via-black to-orange-950/40 border border-orange-500/50 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(255,107,0,0.35)] rotate-45">
+                  <span className="-rotate-45 text-orange-400 font-mono font-black text-xl sm:text-2xl drop-shadow-[0_0_10px_#ff6b00]">
+                    &lt;/&gt;
+                  </span>
+                </div>
+              </div>
+
+              <h1 className="intro-brand-name text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-neutral-100 via-orange-400 to-amber-500 drop-shadow-[0_0_25px_rgba(255,107,0,0.4)] transition-all duration-300">
+                MUHAMMAD TAHA
+              </h1>
+
+              <div className="mt-4 sm:mt-5 flex items-baseline justify-center gap-1 font-mono">
+                <span className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-orange-200 to-orange-500 drop-shadow-[0_0_15px_rgba(255,107,0,0.5)]">
+                  {String(counter).padStart(2, '0')}
+                </span>
+                <span className="text-xl sm:text-2xl font-bold text-orange-500 drop-shadow-[0_0_10px_#ff6b00]">
+                  %
+                </span>
+              </div>
+
+              <div className="w-64 sm:w-80 md:w-96 h-2 bg-neutral-900/90 rounded-full mt-7 p-0.5 border border-orange-500/30 overflow-hidden relative shadow-[0_0_20px_rgba(255,107,0,0.2)]">
+                <div 
+                  className="intro-progress-bar h-full rounded-full bg-gradient-to-r from-orange-600 via-amber-500 to-orange-400 shadow-[0_0_12px_#ff6b00] relative"
+                  style={{ width: '0%' }}
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_10px_#ffffff,0_0_15px_#ff8c00]"></div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-5 text-xs font-mono font-bold tracking-[0.25em] text-orange-400/90 uppercase">
+                <span>{statusText}</span>
+              </div>
+
+            </div>
+
+    
+
+          </div>
+
         </div>
       )}
 
-      {/* Main Content (Always visible once introFinished is true) */}
       <div className={`main-content-wrapper w-full relative z-10 transition-opacity duration-500 ${introFinished ? 'opacity-100' : 'opacity-0'}`}>
         {children}
       </div>
 
-      {/* === GHOST CUSTOM CURSOR (SVG Gooey Filter & Ghost Container) === */}
       <div className="hidden lg:block pointer-events-none select-none">
         <div id="ghost" ref={ghostRef} className="ghost">
           <div className="ghost__head">
@@ -228,7 +320,6 @@ const IntroAnimation = ({ children }) => {
           </div>
         </div>
 
-        {/* SVG Gooey Filter */}
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" className="fixed w-0 h-0 pointer-events-none opacity-0">
           <defs>
             <filter id="goo">
@@ -252,4 +343,4 @@ const IntroAnimation = ({ children }) => {
   );
 };
 
-export default IntroAnimation;
+export default IntroAnimation;
