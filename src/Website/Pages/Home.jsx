@@ -231,7 +231,7 @@ export const Home = () => {
 
       <TopProjects />
       <SkillsSection />
-      <Quote />
+      <Quote/>
       <TestimonialsSection />
       <Contact />
     </>

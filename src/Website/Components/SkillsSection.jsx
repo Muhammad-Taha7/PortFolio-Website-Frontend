@@ -126,7 +126,7 @@ export const SkillsSection = () => {
       return () => ctx.revert();
     };
 
-    // Fallback: If intersection observer hasn't fired in 1s, reveal skills anyway
+    // Fallback: If intersection observer hasn't fired in 1.2s, reveal skills anyway
     const fallbackTimer = setTimeout(() => {
       animateSkills();
     }, 1200);
@@ -163,7 +163,7 @@ export const SkillsSection = () => {
           {skillCategories.map((group) => (
             <div
               key={group.category}
-              className="skill-category-card bg-white/[0.02] border border-white/[0.08] p-6 md:p-8 rounded-2xl flex flex-col justify-between backdrop-blur-sm hover:border-amber-500/30 transition-colors duration-300 shadow-lg"
+              className="skill-category-card bg-white/[0.02] border border-white/[0.08] p-5 sm:p-8 rounded-2xl flex flex-col justify-between backdrop-blur-sm hover:border-amber-500/30 transition-colors duration-300 shadow-lg"
             >
               <div>
                 {/* Category Title */}
@@ -172,25 +172,25 @@ export const SkillsSection = () => {
                   {group.category}
                 </h3>
 
-                {/* Skill Badges Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Skill Badges Grid (Always 2 Columns) */}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                   {group.skills.map((skill) => {
                     const IconComponent = skill.icon;
                     return (
                       <div
                         key={skill.name}
-                        className="skill-badge group flex items-center gap-3.5 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.05] hover:border-amber-500/30 p-3.5 rounded-xl transition-all duration-300 hover:-translate-y-1 cursor-default"
+                        className="skill-badge group flex items-center gap-2 sm:gap-3.5 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.05] hover:border-amber-500/30 p-2.5 sm:p-3.5 rounded-xl transition-all duration-300 hover:-translate-y-1 cursor-default"
                       >
-                        {/* Icon Container with dynamic color & hover glow */}
+                        {/* Icon Container */}
                         <div 
-                          className="w-10 h-10 rounded-lg bg-white/[0.05] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/[0.05] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
                           style={{ color: skill.color }}
                         >
-                          <IconComponent className="text-xl w-5 h-5" />
+                          <IconComponent className="text-lg sm:text-xl w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
 
                         {/* Skill Name */}
-                        <span className="text-gray-200 text-sm md:text-base font-medium tracking-wide group-hover:text-white transition-colors duration-200">
+                        <span className="text-gray-200 text-xs sm:text-base font-medium tracking-wide group-hover:text-white transition-colors duration-200 truncate">
                           {skill.name}
                         </span>
                       </div>

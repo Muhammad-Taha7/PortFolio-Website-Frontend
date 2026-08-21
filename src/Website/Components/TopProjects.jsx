@@ -59,7 +59,7 @@ export const TopProjects = () => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -12; // Adjusted intensity
+    const rotateX = ((y - centerY) / centerY) * -12;
     const rotateY = ((x - centerX) / centerX) * 12;
 
     // Apply smooth GSAP 3D Tilt
@@ -105,7 +105,7 @@ export const TopProjects = () => {
     if (!sliderRef.current || projects.length === 0) return;
 
     const cardElement = sliderRef.current.querySelector('.tp-card-wrapper');
-    const cardWidth = cardElement ? cardElement.offsetWidth : 460;
+    const cardWidth = cardElement ? cardElement.offsetWidth : 280;
     const gap = 32;
     const step = cardWidth + gap;
 
@@ -205,17 +205,17 @@ export const TopProjects = () => {
                   return (
                     <div
                       key={project._id || index}
-                      className="tp-card-wrapper w-[340px] sm:w-[460px] shrink-0"
+                      className="tp-card-wrapper w-[280px] sm:w-[460px] shrink-0"
                       style={{ perspective: '1000px' }}
                     >
                       {/* Fixed 3D Tilt Card Container */}
                       <div
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        className="group relative bg-[#111111] border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/70 transition-colors duration-300 flex flex-col h-[520px] sm:h-[560px] shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                        className="group relative bg-[#111111] border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/70 transition-colors duration-300 flex flex-col h-[420px] sm:h-[560px] shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
                         style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
                       >
-                        {/* --- CORNER ORANGE LIGHTS & ACCENTS --- */}
+                        {/* Corner Accents */}
                         <div className="absolute top-0 left-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-tl-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
                         <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-orange-500 rounded-tl-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
 
@@ -228,11 +228,11 @@ export const TopProjects = () => {
                         <div className="absolute bottom-0 right-0 w-24 h-24 bg-orange-500/20 blur-xl rounded-br-2xl pointer-events-none group-hover:bg-orange-500/40 transition-colors duration-500" />
                         <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-orange-500 rounded-br-md pointer-events-none z-30 shadow-[0_0_8px_#f97316]" />
 
-                        {/* Interactive Dynamic Radial Glow Layer */}
+                        {/* Radial Glow */}
                         <div className="card-glow pointer-events-none absolute inset-0 z-20 rounded-2xl" />
 
                         {/* Image Section */}
-                        <div className="w-full h-[280px] sm:h-[320px] overflow-hidden relative bg-black/50 pointer-events-none">
+                        <div className="w-full h-[200px] sm:h-[320px] overflow-hidden relative bg-black/50 pointer-events-none shrink-0">
                           <img
                             src={imgUrl}
                             alt={project.name}
@@ -243,16 +243,16 @@ export const TopProjects = () => {
                         </div>
 
                         {/* Details Section */}
-                        <div className="p-7 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
+                        <div className="p-5 sm:p-7 flex flex-col justify-between flex-1 relative z-10 bg-[#111111]">
                           <div>
-                            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 line-clamp-1 group-hover:text-orange-400 transition-colors tracking-wide">
+                            <h3 className="text-xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 line-clamp-1 group-hover:text-orange-400 transition-colors tracking-wide">
                               {project.name}
                             </h3>
 
                             {project.technologies && project.technologies.length > 0 && (
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                {project.technologies.slice(0, 5).map((tech, idx) => (
-                                  <span key={idx} className="text-xs font-semibold px-3 py-1 bg-white/5 text-neutral-300 border border-white/10 rounded-lg group-hover:border-orange-500/30 transition-colors">
+                              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                                {project.technologies.slice(0, 4).map((tech, idx) => (
+                                  <span key={idx} className="text-[10px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 bg-white/5 text-neutral-300 border border-white/10 rounded-lg group-hover:border-orange-500/30 transition-colors">
                                     {tech}
                                   </span>
                                 ))}
@@ -262,7 +262,7 @@ export const TopProjects = () => {
 
                           <Link
                             to={`/project/${project._id}`}
-                            className="inline-flex items-center justify-center w-full py-3.5 px-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold transition-all duration-300 shadow-[0_4px_20px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_25px_rgba(249,115,22,0.5)] text-xs tracking-[0.15em] uppercase select-none rounded-xl mt-2 relative z-30"
+                            className="inline-flex items-center justify-center w-full py-2.5 sm:py-3.5 px-4 sm:px-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold transition-all duration-300 shadow-[0_4px_20px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_25px_rgba(249,115,22,0.5)] text-xs tracking-[0.15em] uppercase select-none rounded-xl relative z-30"
                           >
                             View Details
                           </Link>
