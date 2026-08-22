@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Clock, Tag, Share2, Check, 
-  MessageCircle, Sparkles, BookOpen, User, Eye
+  Sparkles
 } from 'lucide-react';
 import { FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 
@@ -45,11 +45,18 @@ export const BlogDetails = () => {
 
   // Reading Progress Calculator
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = (window.scrollY / totalHeight) * 100;
-        setReadingProgress(Math.min(100, Math.max(0, progress)));
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+          if (totalHeight > 0) {
+            const progress = (window.scrollY / totalHeight) * 100;
+            setReadingProgress(Math.min(100, Math.max(0, progress)));
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
@@ -87,11 +94,10 @@ export const BlogDetails = () => {
   const renderFormattedContent = (content) => {
     if (!content) return null;
 
-    // Split paragraphs
     const paragraphs = content.split('\n');
 
     return (
-      <div className="space-y-6 text-gray-300 font-normal leading-relaxed text-base md:text-lg">
+      <div className="space-y-6 text-gray-300 font-normal leading-relaxed text-base md:text-lg w-full">
         {paragraphs.map((para, idx) => {
           const trimmed = para.trim();
           if (!trimmed) return null;
@@ -125,7 +131,7 @@ export const BlogDetails = () => {
           if (trimmed.startsWith('> ') || trimmed.startsWith('Note:') || trimmed.startsWith('Tip:')) {
             const quoteText = trimmed.replace(/^>\s*/, '').replace(/^(Note:|Tip:)\s*/, '');
             return (
-              <div key={idx} className="p-5 my-6 rounded-2xl bg-amber-500/[0.07] border-l-4 border-amber-500 backdrop-blur-md shadow-md">
+              <div key={idx} className="p-5 my-6 rounded-2xl bg-amber-500/[0.07] border-l-4 border-amber-500 backdrop-blur-md shadow-md w-full">
                 <div className="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-wider mb-2">
                   <Sparkles className="w-4 h-4" />
                   Key Takeaway
@@ -150,18 +156,18 @@ export const BlogDetails = () => {
             );
           }
 
-          // Code block indicator (simple single line chip or multiline)
+          // Code block indicator
           if (trimmed.startsWith('```') || trimmed.endsWith('```')) {
             const codeText = trimmed.replace(/```[a-zA-Z]*/g, '').replace(/```/g, '');
             if (!codeText.trim()) return null;
             return (
-              <div key={idx} className="p-4 rounded-xl bg-[#141418] border border-white/10 font-mono text-sm text-amber-300 overflow-x-auto shadow-lg my-4">
+              <div key={idx} className="p-4 rounded-xl bg-[#141418] border border-white/10 font-mono text-sm text-amber-300 overflow-x-auto shadow-lg my-4 w-full">
                 <code>{codeText}</code>
               </div>
             );
           }
 
-          // Normal paragraph with basic bold parsing
+          // Normal paragraph
           return (
             <p key={idx} className="text-gray-300 leading-relaxed text-base md:text-lg">
               {trimmed}
@@ -172,8 +178,7 @@ export const BlogDetails = () => {
     );
   };
 
-  // Related Blogs (excluding current)
-  const relatedBlogs = allBlogs.filter((b) => b._id !== id).slice(0, 3);
+  const relatedBlogs = allBlogs.filter((b) => b._id !== id).slice(0, 4);
 
   if (loading) {
     return (
@@ -212,7 +217,7 @@ export const BlogDetails = () => {
   return (
     <div className="w-full min-h-screen bg-[#070707] text-white pt-28 pb-28 relative overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       
-      {/* Top Reading Progress Bar */}
+      {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-1 bg-transparent z-50">
         <div 
           className="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-amber-300 transition-all duration-100 ease-out shadow-[0_0_12px_rgba(251,191,36,0.8)]"
@@ -220,11 +225,11 @@ export const BlogDetails = () => {
         />
       </div>
 
-      {/* Ambient background lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-amber-500/10 via-orange-500/5 to-transparent rounded-full blur-[140px] pointer-events-none z-0"></div>
-      <div className="absolute top-10 right-10 w-96 h-96 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+      {/* Background Lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[80vw] h-[600px] bg-gradient-to-tr from-amber-500/10 via-orange-500/5 to-transparent rounded-full blur-[160px] pointer-events-none z-0"></div>
 
-      <div className="max-w-4xl mx-auto px-6 md:px-10 relative z-10">
+      {/* MAIN CONTAINER: FULL PAGE WIDTH */}
+      <div className="w-full px-4 sm:px-8 lg:px-16 relative z-10">
         
         {/* Back Link */}
         <div className="mb-8">
@@ -238,9 +243,7 @@ export const BlogDetails = () => {
         </div>
 
         {/* Header Metadata */}
-        <header className="mb-10">
-          
-          {/* Category & Read Time Tags */}
+        <header className="mb-10 w-full">
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
               <Sparkles className="w-3 h-3" />
@@ -260,13 +263,11 @@ export const BlogDetails = () => {
             </div>
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black tracking-tight leading-[1.15] text-white mb-8">
             {blog.title}
           </h1>
 
-          {/* Author Details Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-md">
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-md w-full">
             <div className="flex items-center gap-3.5">
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 p-0.5 flex items-center justify-center shadow-lg">
                 <div className="w-full h-full rounded-full bg-[#121212] flex items-center justify-center font-black text-amber-400 text-base">
@@ -284,7 +285,6 @@ export const BlogDetails = () => {
               </div>
             </div>
 
-            {/* Social Share Buttons */}
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyLink}
@@ -316,22 +316,21 @@ export const BlogDetails = () => {
               </a>
             </div>
           </div>
-
         </header>
 
         {/* Cover Image Container */}
-        <div className="relative mb-12 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group">
+        <div className="relative mb-12 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group w-full">
           <img
             src={getImageUrl(blog.coverImage)}
             alt={blog.title}
-            className="w-full max-h-[500px] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+            className="w-full h-auto max-h-[600px] object-cover transition-transform duration-700 group-hover:scale-[1.01]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-transparent to-transparent opacity-40"></div>
         </div>
 
         {/* Tags Bar */}
         {blog.tags && blog.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-10 pb-6 border-b border-white/10">
+          <div className="flex flex-wrap items-center gap-2 mb-10 pb-6 border-b border-white/10 w-full">
             <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mr-2 flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-amber-400" />
               Tags:
@@ -348,12 +347,12 @@ export const BlogDetails = () => {
         )}
 
         {/* Main Article Body */}
-        <main className="prose prose-invert max-w-none mb-16">
+        <main className="prose prose-invert max-w-none w-full mb-16">
           {renderFormattedContent(blog.content)}
         </main>
 
         {/* Article Footer & Author Signature */}
-        <div className="my-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/10 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div className="my-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/10 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row items-center sm:items-start gap-6 w-full">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 p-0.5 flex-shrink-0">
             <div className="w-full h-full rounded-2xl bg-[#121212] flex items-center justify-center text-2xl font-black text-amber-400">
               👨‍💻
@@ -361,7 +360,7 @@ export const BlogDetails = () => {
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="text-lg font-bold text-white mb-1">Written by Muhammad Taha</h3>
-            <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+            <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4 max-w-2xl">
               Passionate MERN stack engineer creating high-performance web applications, architecture blueprints, and developer tutorials.
             </p>
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
@@ -383,7 +382,7 @@ export const BlogDetails = () => {
 
         {/* Related Articles Section */}
         {relatedBlogs.length > 0 && (
-          <div className="mt-20 pt-12 border-t border-white/10">
+          <div className="mt-20 pt-12 border-t border-white/10 w-full">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <span className="text-amber-400 font-mono font-bold text-xs uppercase tracking-widest block mb-1">
@@ -401,14 +400,14 @@ export const BlogDetails = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {relatedBlogs.map((relBlog) => (
                 <Link
                   key={relBlog._id}
                   to={`/blog/${relBlog._id}`}
                   className="group flex flex-col bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-amber-500/30 rounded-2xl overflow-hidden transition-all duration-300 p-4"
                 >
-                  <div className="w-full h-40 rounded-xl overflow-hidden relative mb-4">
+                  <div className="w-full h-44 rounded-xl overflow-hidden relative mb-4">
                     <img
                       src={getImageUrl(relBlog.coverImage)}
                       alt={relBlog.title}
